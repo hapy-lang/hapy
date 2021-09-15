@@ -1,0 +1,175 @@
+"""
+Tokean Stream, converts each char from InputStream to a token for our AST
+e.g {type: 'var', value: 'name'}
+There are diff types of Tokens,
+variables, digits, operators, keywords, strings etc
+"""
+from typing import List, Any, Callable
+from input_stream import InputStream
+
+class TokenStream(InputStream):
+
+	def __init__(self, _input: InputStream):
+		super().__init__(_input.input)
+		self.current = None;
+		self.input = _input;
+		
+		# these keywords would go somewhere else!
+		# NOTE! Wow! Removing a callable kw from keywords removed a bug! thank you Jesus
+		self.keywords = " if then import from else in None return def True False "
+		self.operator_words = " not and or "
+
+	def is_keyword(self, char: str) -> bool:
+		"""Check if input is a part of keywords List"""
+		return char in self.keywords
+
+	def is_digit(self, char: str) -> bool:
+		"""Check if char is a digit"""
+
+		return char.isdigit()
+
+	def is_id_start(self, char: str) -> bool:
+		"""Check if char is a start of a variable
+		name (identifier)"""
+
+		return char.isalpha()
+
+	def is_id(self, char: str):
+		"""return True iff char is valid Python identifier"""
+
+		return self.is_id_start(char) or char.isidentifier() or char.isdigit()
+
+	def is_op_char(self, ch: str) -> bool:
+		"""return True iff operational characterer"""
+
+		return ch in "+-*/%=<>!&|"
+
+	def is_punc(self, ch: str) -> bool:
+		"""return True iff is punctuation character"""
+
+		return ch in ":,;(){}[]"
+
+
+	def is_whitespace(self, ch: str) -> bool:
+		"""check if ch is whitespace character"""
+
+		return ch in " \t\n"
+
+	def read_while(self, predicate: Callable[[str], str]) -> str:
+		""" read while """
+
+		string = ""
+	
+		while (not self.input.eof()) and predicate(self.input.peek()):
+			string += self.input.next()
+		return string
+
+	def read_number(self) -> bool:
+		""" read number """
+
+		has_dot = False
+
+		def function(c: str):
+			if c == ".":
+				nonlocal has_dot
+				if has_dot: return False;
+				has_dot = True
+				return True
+			return self.is_digit(c)
+
+		number = self.read_while(function)
+
+		return {"type": "num", "value": float(number)}
+
+	def read_identifier(self):
+		""" read identifier """
+		word = self.read_while(self.is_id)
+
+		if word in self.operator_words:
+			return {"type": "op", "value": word}
+
+		return {"type": "kw" if self.is_keyword(word) else "var", "value": word}
+
+	def read_escaped(self, end):
+		""" read escaped """
+		escaped, string = False, "";
+		self.input.next();
+		while not self.input.eof():
+			ch = self.input.next()
+			if escaped:
+				string += ch;
+				escaped = False;
+			elif ch == "\\":
+				escaped = True
+			elif ch in end:
+				break
+			else:
+				string += ch;
+
+		return string
+
+	def read_string(self):
+		"""return string token"""
+		
+		return { "type": "str", "value": self.read_escaped(('"', '\'', "'")) };
+
+	def skip_comment(self):
+		"""skip comment"""
+
+		# lambda function since unnamed, used once and returns value simply
+		self.read_while(lambda ch: ch != "\n")
+		self.input.next()
+
+	def read_next(self):
+		""" read next value"""
+		
+		self.read_while(self.is_whitespace);
+
+		if self.input.eof():
+			return None;
+
+		ch = self.input.peek()
+
+		if ch == "#":
+			self.skip_comment()
+			return self.read_next()
+
+		if ch == '"' or ch == '\'':
+			return self.read_string()
+
+		if self.is_digit(ch):
+			return self.read_number()
+
+		if self.is_id_start(ch):
+			return self.read_identifier()
+		
+		if self.is_punc(ch):
+			return {"type": "punc", "value": self.input.next()}
+
+		if self.is_op_char(ch):
+
+			return {"type": "op", "value": self.read_while(self.is_op_char)}
+
+		self.input.croak("Can't handle character: \"%s\"" % ch);
+
+	def peek(self):
+		"""peek returns the current token"""
+		if not self.current:
+			self.current = self.read_next()
+
+		return self.current
+
+	def next(self):
+		"""get next char"""
+
+		tok = self.current
+		self.current = None
+		return tok or self.read_next()
+
+	def eof(self):
+		"""check if end of file"""
+		return self.peek() == "" or self.peek() == None
+
+	def croak(self, msg: str):
+		"""raises an error"""
+		raise Exception(msg + " ({}:{})".format(self.input.line, self.input.col))
