@@ -23,12 +23,12 @@ def parse(input: TokenStream):
 	"""parse input to AST tokens"""
 
 	PRECEDENCE = {
-		"=": 1,
+		"=": 1, "is": 1,
 		"or": 2,
 		"and": 3,
 		"<": 7, ">": 7, "<=": 7, ">=": 7, "==": 7, "!=": 7,
-		"+": 10, "-": 10,
-		"*": 20, "/": 20, "%": 20,
+		"+": 10, "-": 10, "plus": 10, "minus": 10,
+		"*": 20, "/": 20, "%": 20, "times": 20, "dividedby": 20
 	}
 
 	# the program first level! thank you Jesus!
@@ -49,6 +49,12 @@ def parse(input: TokenStream):
 		if is_punc(ch):
 			input.next()
 		else:
+
+			# if the punc we are meant to skip is ';' then there's probs
+			# something wrong with the syntax :|
+			if ch == ";":
+				return unexpected("Check your syntax! You might have made an error at %s")
+
 			input.croak(f"Expecting punctuation got: \"{ch}\"")
 
 	def skip_kw(kw):
@@ -63,8 +69,8 @@ def parse(input: TokenStream):
 		else:
 			input.croak(f"Expecting punctuation got: \"{op}\"")
 
-	def unexpected():
-		input.croak("unexpected token: %s " % json.dumps(input.peek()))
+	def unexpected(msg = "unexpected token: %s "):
+		input.croak(msg % json.dumps(input.peek()))
 
 	def maybe_binary(left, my_prec):
 		tok = is_op(None)
@@ -74,7 +80,7 @@ def parse(input: TokenStream):
 			if their_prec > my_prec:
 				input.next()
 				return maybe_binary({
-					"type": "assign" if tok["value"] == "=" else "binary",
+					"type": "assign" if tok["value"] == "=" or tok["value"] == "is" else "binary",
 					"operator": tok["value"],
 					"left": left,
 					"right": maybe_binary(parse_atom(), their_prec)
@@ -127,6 +133,29 @@ def parse(input: TokenStream):
 		if is_kw("else"):
 			input.next()
 			ret["else"] = parse_expression()
+
+		# TODO: look into `else_if/elif`
+		# if is_kw("else_if"):
+		# 	input.next()
+		# 	ret["else"] = parse_expression()
+
+		return ret
+
+	def parse_while():
+		""" this is literally the same as parse_if but I keep seperate just in case """
+
+		skip_kw("while")
+
+		cond = parse_expression()
+		
+		then = parse_expression()
+
+		ret = {
+			"type": "while",
+			"cond": cond,
+			"then": then
+		}
+		
 		return ret
 
 	def parse_function():
@@ -151,6 +180,7 @@ def parse(input: TokenStream):
 	def parse_atom():
 		""" success, thank you Jesus! """
 		def doer():
+
 			if is_punc("("):
 				input.next()
 				exp = parse_expression()
@@ -160,6 +190,8 @@ def parse(input: TokenStream):
 				return parse_prog()
 			if is_kw("if"):
 				return parse_if()
+			if is_kw("while"):
+				return parse_while()
 			if is_kw("True") or is_kw("False"):
 				return parse_bool()
 			if is_kw("def"):
@@ -197,6 +229,9 @@ def parse(input: TokenStream):
 		while not input.eof():
 			prog.append(parse_expression())
 			if not input.eof():
+				# this means that there are still expressions to run!
+				# but of course, if it doesn't make sense it won't work.
+				# the next token may not be ;...
 				skip_punc(";")
 		return {"type": "prog", "prog": prog}
 
@@ -205,19 +240,21 @@ def parse(input: TokenStream):
 
 if __name__ == "__main__":
 	# code = """
-	# 	age = 15;
-	# 	if (age >= 18) {
-	# 		print('Kid!');
-	# 	} else {
-	# 		print('Adult!')
-	# 	};
-
-	# 	Math.divide(23, 30)
-	# 	"""
-
-	code = "2 * 3 + 4 / 2"
+	# 			if (20 > 10) {
+	# 				print('Greater!');
+	# 			} else {
+	# 				print('Smaller!');
+	# 			};
+	# 		"""
+	code = """
+				while (True) {
+					print('true!');
+				};
+			"""
+	# code = "age is (1 plus 1); name is 'emma'"
 	inputs = InputStream(code)
 	tokens = TokenStream(inputs)
 	ast = parse(tokens)
 
 	print(ast)
+	# unexpected()

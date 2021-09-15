@@ -49,6 +49,26 @@ class TestParser(unittest.TestCase):
 
 		self.assertEqual(expected, actual, "Expression is a number assignment!")
 
+	def test_assignment_with_is(self):
+		"""test assignment to variable using 'is' keyword"""
+
+		code = "jordan is 23"
+
+		expected = {
+		  "type": "prog",
+		  "prog": [
+		    {
+		      "type": "assign",
+		      "operator": "is",
+		      "left": { "type": "var", "value": "jordan" },
+		      "right": { "type": "num", "value": 23.0 }
+		    }
+		  ]
+		}
+		actual = parse(TokenStream(InputStream(code)))
+
+		self.assertEqual(expected, actual, "Expression is a number assignment!")
+
 	def test_binary_2_operands(self):
 		"""
 		- Test binary operators (comparative and arithmetic)
@@ -191,6 +211,76 @@ class TestParser(unittest.TestCase):
 
 		self.assertEqual(expected, actual, "Expression is a binary operator using and/or")
 
+	def test_word_binary_arithmetic(self):
+		"""
+		Test binary operation using words times, plus, minus
+		"""
+		code = "2 times 3 plus 4"
+
+		expected = {
+		  "type": "prog",
+		  "prog": [
+		     {
+		      "type": "binary",
+		      "operator": "plus",
+		      "left": { 
+		      	"type": "binary", "operator": "times",
+			       "left": { "type": "num", "value": 2.0 },
+			       "right": { "type": "num", "value": 3.0 }
+			    },
+		      "right": { "type": "num", "value": 4.0 }
+		    }
+		  ]
+		}
+		actual = parse(TokenStream(InputStream(code)))
+
+		self.assertEqual(expected, actual, "Expression is a binary arithmetic operator")
+
+	def test_if(self):
+		"""
+		Test binary operation using words and, or
+		"""
+		code = """
+				if (20 > 10) {
+					print('Greater!');
+				} else {
+					print('Smaller!');
+				};
+			"""
+
+		expected = {'type': 'prog',
+			'prog': [{'type': 'if', 
+			'cond': {'type': 'binary', 'operator': '>', 
+			'left': {'type': 'num', 'value': 20.0}, 
+			'right': {'type': 'num', 'value': 10.0}}, 
+			'then': {'type': 'call', 'func': {'type': 'var', 'value': 'print'}, 
+			'args': [{'type': 'str', 'value': 'Greater!'}]},
+			'else': {'type': 'call', 
+			'func': {'type': 'var', 'value': 'print'},
+			'args': [{'type': 'str', 'value': 'Smaller!'
+			}]}}]}
+		actual = parse(TokenStream(InputStream(code)))
+
+		self.assertEqual(expected, actual, "Expression is an if statement")
+
+	def test_while(self):
+		"""
+		Test while loop statement
+		"""
+		code = """
+				while (True) {
+					print('true!');
+				};
+			"""
+
+		expected = {'type': 'prog',
+			'prog': [{'type': 'while', 
+			'cond': {'type': 'bool', 'value': True}, 
+			'then': {'type': 'call', 'func': {'type': 'var', 'value': 'print'}, 
+			'args': [{'type': 'str', 'value': 'true!'}]}}]}
+		actual = parse(TokenStream(InputStream(code)))
+
+		self.assertEqual(expected, actual, "Expression is a while statement")
 	"""
 	- test function call
 	- test function definition

@@ -16,8 +16,8 @@ class TokenStream(InputStream):
 		
 		# these keywords would go somewhere else!
 		# NOTE! Wow! Removing a callable kw from keywords removed a bug! thank you Jesus
-		self.keywords = " if then import from else in None return def True False "
-		self.operator_words = " not and or "
+		self.keywords = " if then while import from else in None return def True False "
+		self.operator_words = " not and or is times plus dividedby minus "
 
 	def is_keyword(self, char: str) -> bool:
 		"""Check if input is a part of keywords List"""

@@ -1,5 +1,5 @@
 ## Hapy - Write Python in Hausa!
-
+### version 0.0.1
 hausa-python to english-python translator thingy
 
 Emmanuel Segun-Lean (undergrad final project)
