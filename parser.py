@@ -5,6 +5,7 @@ from: https://lisperator.net/pltut/parser/the-parser
 import json
 from  token_stream import TokenStream
 from input_stream import InputStream
+# py"import os from OS"
 
 FALSE = { "type": "bool", "value": False }
 
@@ -242,18 +243,20 @@ if __name__ == "__main__":
 	# code = """
 	# 			if (20 > 10) {
 	# 				print('Greater!');
+	# 			if (True) {
+		#  			print('bbs')
+	# }
 	# 			} else {
 	# 				print('Smaller!');
 	# 			};
 	# 		"""
-	code = """
-				while (True) {
-					print('true!');
-				};
-			"""
+	# code = """
+	# 		biggest+smallest = 50
+	# 		"""
 	# code = "age is (1 plus 1); name is 'emma'"
 	inputs = InputStream(code)
 	tokens = TokenStream(inputs)
+	print(tokens)
 	ast = parse(tokens)
 
 	print(ast)

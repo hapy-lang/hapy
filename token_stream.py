@@ -79,7 +79,7 @@ class TokenStream(InputStream):
 
 		number = self.read_while(function)
 
-		return {"type": "num", "value": float(number)}
+		return {"type": "num", "value":  int(number) if (not "." in number) else float(number)}
 
 	def read_identifier(self):
 		""" read identifier """
