@@ -145,9 +145,10 @@ class TestParser(unittest.TestCase):
 		"""
 		Test function definition and expressions
 		"""
+		self.maxDiff = None
 		code = """
 			def sayHello(name) {
-				2 + 3 
+				 2 + 3;
 			};"""
 
 		expected = {
@@ -155,13 +156,13 @@ class TestParser(unittest.TestCase):
 		  "prog": [
 		    {
 		      "type": "function",
-		      "name": "sayHello",
-		      "vars": ['name'],
+		      "name": {"type": "var", "value": "sayHello"}, # now varnames are proper tokens!
+		      "vars": [{"type": "var", "value": "name"}],
 		      "body": {
 		            "type": "binary",
                     'operator': '+',
-		      		"left": {"type": "num", "value": 2.0},
-                    "right": {"type": "num", "value": 3.0}
+		      		"left": {"type": "num", "value": 2},
+                    "right": {"type": "num", "value": 3}
 					}
 		    }
 		  ]
@@ -202,7 +203,7 @@ class TestParser(unittest.TestCase):
 		    {
 		      "type": "binary",
 		      "operator": "and",
-		      "left": {"type": "num", "value": 20.0},
+		      "left": {"type": "num", "value": 20},
 		      "right": {"type": "bool", "value": False}
 		    }
 		  ]
@@ -225,10 +226,10 @@ class TestParser(unittest.TestCase):
 		      "operator": "plus",
 		      "left": { 
 		      	"type": "binary", "operator": "times",
-			       "left": { "type": "num", "value": 2.0 },
-			       "right": { "type": "num", "value": 3.0 }
+			       "left": { "type": "num", "value": 2 },
+			       "right": { "type": "num", "value": 3 }
 			    },
-		      "right": { "type": "num", "value": 4.0 }
+		      "right": { "type": "num", "value": 4 }
 		    }
 		  ]
 		}
@@ -251,8 +252,8 @@ class TestParser(unittest.TestCase):
 		expected = {'type': 'prog',
 			'prog': [{'type': 'if', 
 			'cond': {'type': 'binary', 'operator': '>', 
-			'left': {'type': 'num', 'value': 20.0}, 
-			'right': {'type': 'num', 'value': 10.0}}, 
+			'left': {'type': 'num', 'value': 20}, 
+			'right': {'type': 'num', 'value': 10}}, 
 			'then': {'type': 'call', 'func': {'type': 'var', 'value': 'print'}, 
 			'args': [{'type': 'str', 'value': 'Greater!'}]},
 			'else': {'type': 'call', 
