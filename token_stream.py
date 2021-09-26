@@ -4,172 +4,182 @@ e.g {type: 'var', value: 'name'}
 There are diff types of Tokens,
 variables, digits, operators, keywords, strings etc
 """
-from typing import List, Any, Callable
+from typing import Any, Callable
 from input_stream import InputStream
 
+
 class TokenStream(InputStream):
+    def __init__(self, _input: InputStream):
+        super().__init__(_input.input)
+        self.current = None
+        self.input = _input
 
-	def __init__(self, _input: InputStream):
-		super().__init__(_input.input)
-		self.current = None;
-		self.input = _input;
-		
-		# these keywords would go somewhere else!
-		# NOTE! Wow! Removing a callable kw from keywords removed a bug! thank you Jesus
-		self.keywords = " if then while import from else in None return def True False "
-		self.operator_words = " not and or is times plus dividedby minus "
+        # these keywords would go somewhere else!
+        # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
+        # you Jesus
+        self.keywords = " if then while import from else in None return def True\
+        False "
+        self.operator_words = " not and or is times plus dividedby minus "
 
-	def is_keyword(self, char: str) -> bool:
-		"""Check if input is a part of keywords List"""
-		return char in self.keywords
+    def is_keyword(self, ch: str) -> bool:
+        """Check if input is a part of keywords List"""
+        return ch in self.keywords
 
-	def is_digit(self, char: str) -> bool:
-		"""Check if char is a digit"""
+    def is_digit(self, ch: str) -> bool:
+        """Check if char is a digit"""
 
-		return char.isdigit()
+        return ch.isdigit()
 
-	def is_id_start(self, char: str) -> bool:
-		"""Check if char is a start of a variable
-		name (identifier)"""
+    def is_id_start(self, ch: str) -> bool:
+        """Check if char is a start of a variable name (identifier)"""
 
-		return char.isalpha()
+        return ch.isalpha()
 
-	def is_id(self, char: str):
-		"""return True iff char is valid Python identifier"""
+    def is_id(self, ch: str):
+        """return True iff char is valid Python identifier"""
 
-		return self.is_id_start(char) or char.isidentifier() or char.isdigit()
+        return self.is_id_start(ch) or ch.isidentifier() or ch.isdigit()
 
-	def is_op_char(self, ch: str) -> bool:
-		"""return True iff operational characterer"""
+    def is_op_char(self, ch: str) -> bool:
+        """return True iff operational characterer"""
 
-		return ch in "+-*/%=<>!&|"
+        return ch in "+-*/%=<>!&|"
 
-	def is_punc(self, ch: str) -> bool:
-		"""return True iff is punctuation character"""
+    def is_punc(self, ch: str) -> bool:
+        """return True iff is punctuation character"""
 
-		return ch in ":,;(){}[]"
+        return ch in ":,;(){}[]"
 
+    def is_whitespace(self, ch: str) -> bool:
+        """check if ch is whitespace character"""
 
-	def is_whitespace(self, ch: str) -> bool:
-		"""check if ch is whitespace character"""
+        return ch.isspace()
 
-		return ch.isspace()
+    def read_while(self, predicate: Callable[[str], str]) -> str:
+        """ read while """
 
-	def read_while(self, predicate: Callable[[str], str]) -> str:
-		""" read while """
+        string = ""
 
-		string = ""
-	
-		while (not self.input.eof()) and predicate(self.input.peek()):
-			string += self.input.next()
-		return string
+        while (not self.input.eof()) and predicate(self.input.peek()):
+            string += self.input.next()
+        return string
 
-	def read_number(self) -> bool:
-		""" read number """
+    def read_number(self) -> bool:
+        """ read number """
 
-		has_dot = False
+        has_dot = False
 
-		def function(c: str):
-			if c == ".":
-				nonlocal has_dot
-				if has_dot: return False;
-				has_dot = True
-				return True
-			return self.is_digit(c)
+        def function(c: str):
+            if c == ".":
+                nonlocal has_dot
+                if has_dot: return False
+                has_dot = True
+                return True
+            return self.is_digit(c)
 
-		number = self.read_while(function)
+        number = self.read_while(function)
 
-		return {"type": "num", "value":  int(number) if (not "." in number) else float(number)}
+        return {
+            "type": "num",
+            "value": int(number) if (not "." in number) else float(number)
+        }
 
-	def read_identifier(self):
-		""" read identifier """
-		word = self.read_while(self.is_id)
+    def read_identifier(self):
+        """ read identifier """
+        word = self.read_while(self.is_id)
 
-		if word in self.operator_words:
-			return {"type": "op", "value": word}
+        if word in self.operator_words:
+            return {"type": "op", "value": word}
 
-		return {"type": "kw" if self.is_keyword(word) else "var", "value": word}
+        return {
+            "type": "kw" if self.is_keyword(word) else "var",
+            "value": word
+        }
 
-	def read_escaped(self, end):
-		""" read escaped """
-		escaped, string = False, "";
-		self.input.next();
-		while not self.input.eof():
-			ch = self.input.next()
-			if escaped:
-				string += ch;
-				escaped = False;
-			elif ch == "\\":
-				escaped = True
-			elif ch in end:
-				break
-			else:
-				string += ch;
+    def read_escaped(self, end: Any):
+        """ read escaped """
+        escaped, string = False, ""
+        self.input.next()
+        while not self.input.eof():
+            ch = self.input.next()
+            if escaped:
+                string += ch
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch in end:
+                break
+            else:
+                string += ch
 
-		return string
+        return string
 
-	def read_string(self):
-		"""return string token"""
-		
-		return { "type": "str", "value": self.read_escaped(('"', '\'', "'")) };
+    def read_string(self):
+        """return string token"""
 
-	def skip_comment(self):
-		"""skip comment"""
+        return {
+            "type": "str",
+            "value": self.read_escaped(('"', '\'', "'"))
+        }
 
-		# lambda function since unnamed, used once and returns value simply
-		self.read_while(lambda ch: ch != "\n")
-		self.input.next()
+    def skip_comment(self):
+        """skip comment"""
 
-	def read_next(self):
-		""" read next value"""
-		
-		self.read_while(self.is_whitespace);
+        # lambda function since unnamed, used once and returns value simply
+        self.read_while(lambda ch: ch != "\n")
+        self.input.next()
 
-		if self.input.eof():
-			return None;
+    def read_next(self):
+        """ read next value"""
 
-		ch = self.input.peek()
+        self.read_while(self.is_whitespace)
 
-		if ch == "#":
-			self.skip_comment()
-			return self.read_next()
+        if self.input.eof():
+            return None
 
-		if ch == '"' or ch == '\'':
-			return self.read_string()
+        ch = self.input.peek()
 
-		if self.is_digit(ch):
-			return self.read_number()
+        if ch == "#":
+            self.skip_comment()
+            return self.read_next()
 
-		if self.is_id_start(ch):
-			return self.read_identifier()
-		
-		if self.is_punc(ch):
-			return {"type": "punc", "value": self.input.next()}
+        if ch == '"' or ch == '\'':
+            return self.read_string()
 
-		if self.is_op_char(ch):
+        if self.is_digit(ch):
+            return self.read_number()
 
-			return {"type": "op", "value": self.read_while(self.is_op_char)}
+        if self.is_id_start(ch):
+            return self.read_identifier()
 
-		self.input.croak("Can't handle character: \"%s\"" % ch);
+        if self.is_punc(ch):
+            return {"type": "punc", "value": self.input.next()}
 
-	def peek(self):
-		"""peek returns the current token"""
-		if not self.current:
-			self.current = self.read_next()
+        if self.is_op_char(ch):
 
-		return self.current
+            return {"type": "op", "value": self.read_while(self.is_op_char)}
 
-	def next(self):
-		"""get next char"""
+        self.input.croak("Can't handle character: \"%s\"" % ch)
 
-		tok = self.current
-		self.current = None
-		return tok or self.read_next()
+    def peek(self):
+        """peek returns the current token"""
+        if not self.current:
+            self.current = self.read_next()
 
-	def eof(self):
-		"""check if end of file"""
-		return self.peek() == "" or self.peek() == None
+        return self.current
 
-	def croak(self, msg: str):
-		"""raises an error"""
-		raise Exception(msg + " ({}:{})".format(self.input.line, self.input.col))
+    def next(self):
+        """get next char"""
+
+        tok = self.current
+        self.current = None
+        return tok or self.read_next()
+
+    def eof(self):
+        """check if end of file"""
+        return self.peek() == "" or self.peek() == None
+
+    def croak(self, msg: str):
+        """raises an error"""
+        raise Exception(msg +
+                        " ({}:{})".format(self.input.line, self.input.col))
