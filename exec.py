@@ -8,32 +8,34 @@ from io import StringIO
 codeOut = StringIO()
 codeErr = StringIO()
 
+
 def run(code: str):
-	sys.stdout = codeOut
-	sys.stderr = codeErr
+    sys.stdout = codeOut
+    sys.stderr = codeErr
 
-	exec(code)
+    exec(code)
 
-	sys.stdout = sys.__stdout__
-	sys.stderr = sys.__stderr__
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
 
-	s = codeErr.getvalue()
+    s = codeErr.getvalue()
 
-	print("error: \n%s\n" % s)
+    print("error: \n%s\n" % s)
 
-	s = codeOut.getvalue()
+    s = codeOut.getvalue()
 
-	print("output: \n%s" % s)
+    print("output: \n%s" % s)
 
-	codeOut.close()
-	codeErr.close()
+    codeOut.close()
+    codeErr.close()
+
 
 if __name__ == '__main__':
-	code = """
+    code = """
 				if (20 > 10) {
 					print('Greater!');
 				} else {
 					print('Smaller!');
 				};
 			"""
-	run(code)
+    run(code)
