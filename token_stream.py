@@ -53,7 +53,7 @@ class TokenStream(InputStream):
 	def is_whitespace(self, ch: str) -> bool:
 		"""check if ch is whitespace character"""
 
-		return ch in " \t\n"
+		return ch.isspace()
 
 	def read_while(self, predicate: Callable[[str], str]) -> str:
 		""" read while """

@@ -36,6 +36,25 @@ function make_js(exp) {
 
 indent = "    "
 
+word_ops = {
+	"and": "and",
+	"or": "or",
+	"is": "=",
+	"plus": "+",
+	"minus": "-",
+	"times": "*",
+	"dividedby": "/"
+}
+
+def handle_operators(op: str) -> str:
+	""" convert custom operators to python operators... """
+	# check if string, else just return op
+
+	if op.isalpha():
+		return word_ops.get(op)
+	else:
+		return op
+
 def make_py(token):
 
 	indent_lvl = 0
@@ -80,7 +99,8 @@ def make_py(token):
 	def py_binary(tok):
 		# just return the token
 		return "{left} {op} {right}".format(
-			**{"left": pythonise(tok["left"]), "op": tok["operator"], 
+			**{"left": pythonise(tok["left"]),\
+				"op": handle_operators(tok["operator"]),\
 				"right": pythonise(tok["right"])})
 
 	def py_assign(tok):
@@ -89,18 +109,19 @@ def make_py(token):
 
 	def py_function(tok):
 		# just return the token
-		return json.dumps(tok["value"])
+		# o is output :) thank you Jesus!
+
+		args = " ({args})".format(**{"args":
+			", ".join(list(map(lambda x:pythonise(x), tok["vars"])))
+			})
+
+		o = "def " + pythonise(tok["name"]) + args + "{"\
+		+ pythonise(tok["body"]) + "}"
+
+		return o
 
 	def py_if(tok):
 		# return python looking function...
-		"""
-			if cond:
-				expressions! thank you Jesus!
-		"""
-		# global indent_lvl
-		# nonlocal indent
-		# indent += 1
-		# print(indent)
 		nonlocal indent_lvl
 		indent_lvl += 1
 		print("-" * indent_lvl)
@@ -108,7 +129,7 @@ def make_py(token):
 		# + pythonise(tok["then"]) + "\n" + ("\nelse:\n    " + pythonise(tok["else"]) if tok.get("else", None) else "")
 
 		
-		o = "\nif (" + pythonise(tok["cond"]) + "){"\
+		o = "if (" + pythonise(tok["cond"]) + "){"\
 		+ pythonise(tok["then"]) + "}" + ("\nelse {" + pythonise(tok["else"]) + "}" if tok.get("else", None) else "")
 	
 
@@ -116,8 +137,12 @@ def make_py(token):
 		return o
 
 	def py_while(tok):
-		# just return the token
-		return json.dumps(tok["value"])
+		"""while loop, returns python while loop!"""
+		
+		o = "while (" + pythonise(tok["cond"]) + "){"\
+		+ pythonise(tok["then"]) + "}"
+
+		return o
 
 	def py_call(tok):
 		# just return the token
@@ -127,24 +152,32 @@ def make_py(token):
 
 	def py_prog(tok):
 		# just return the token
-		return ";".join(list(map(lambda x:pythonise(x), tok["prog"])))
+		# TODO: maybe add closing ; at the end of the program? DISCUSS IT
+		return ";".join(list(map(lambda x:pythonise(x), tok["prog"]))) + ";"
 
 	return pythonise(token)
 
 if __name__ == "__main__":
 	code = """
 			age = 30; # lvl 0
-			if(age < 18) { # lvl 0
+			if(age<18){ # lvl 0
 				print('old!'); # lvl 1
-				if (age == 30) { # lvl 1
+				if(age == 30) { # lvl 1
 					print('Not quite adult!')
-				}
-			} else {
-				print('YOUNG!')
+				};
+
+				while(True){
+					print('popoooo!')
+				};
+			}else{
+				print('YOUNG!');
 			}
 			"""
+
 	# code = """
-	# 			3 * 2
+	# 			def eat_beans(name, age, sex) {
+	# 				print('NOOOO');
+	# 			}
 	# 		"""
 	# code = "age is (1 plus 1); name is 'emma'"
 	inputs = InputStream(code)
