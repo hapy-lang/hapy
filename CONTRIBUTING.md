@@ -1,4 +1,6 @@
-## working on hapy and as a team:
+# working on hapy and as a team:
+
+## Source Control (Git)
 
 this will be quick and short before i write a more elaborate kini:
 
@@ -44,3 +46,17 @@ This will outline the git workflow for development based on best practices and e
 * [Working with issues in Gitlab](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html)
 * [Git branching model](https://nvie.com/posts/a-successful-git-branching-model/)
 * [Tips to enhance **GitHub** workflow](https://hackernoon.com/15-tips-to-enhance-your-github-flow-6af7ceb0d8a3)
+
+## Code Editors
+
+I (@LeanKhan) started with Sublime Text as the editor because it was light. But you can use anyone. I use these extensions so maybe find something similar:
+
+- Yapf for code formatting
+- PyYapf Sublime Plugin
+- Factor8 plugin and Sublime extension
+- Anaconda Sublime Extension though I haven't got it working properly
+
+As for coding style, I use thes Linters and Formatters defaults
+I followed this article for setting up Sublime Text for Python https://karansthr.gitlab.io/fosstack/setup-sublime-python/index.html
+
+I might keep on using Sublime for this stage of the project though.
