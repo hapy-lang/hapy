@@ -6,8 +6,8 @@ AST -> Abstract Syntax Tree... thank you Jesus!
 import json
 from token_stream import TokenStream
 from input_stream import InputStream
-from parser import parse
-from exec import run
+from token_parser import parse
+from exector import run
 """
 function make_js(exp) {
     return js(exp);
@@ -72,6 +72,7 @@ def make_py(token):
             "assign": py_assign,
             "function": py_function,
             "if": py_if,
+            "list": py_list,
             "while": py_while,
             "call": py_call,
             "prog": py_prog
@@ -123,6 +124,17 @@ def make_py(token):
 
         return o
 
+    def py_list(tok):
+        # just return the token
+        # o is output :) thank you Jesus!
+
+        o = " [{args}]".format(**{
+            "args":
+            ",".join(list(map(lambda x: pythonise(x), tok["elements"])))
+        })
+
+        return o
+
     def py_if(tok):
         # return python looking function...
         nonlocal indent_lvl
@@ -163,28 +175,27 @@ def make_py(token):
 
 
 if __name__ == "__main__":
+   #  code = """
+			# age = 30; # lvl 0
+			# if(age<18){ # lvl 0
+			# 	print('old!'); # lvl 1
+			# 	if(age == 30) { # lvl 1
+			# 		print('Not quite adult!')
+			# 	};
+
+			# 	while(True){
+			# 		print('popoooo!')
+			# 	};
+			# }else{
+			# 	print('YOUNG!');
+			# }
+			# """
+
     code = """
-			age = 30; # lvl 0
-			if(age<18){ # lvl 0
-				print('old!'); # lvl 1
-				if(age == 30) { # lvl 1
-					print('Not quite adult!')
-				};
-
-				while(True){
-					print('popoooo!')
-				};
-			}else{
-				print('YOUNG!');
-			}
-			"""
-
-    # code = """
-    # 			def eat_beans(name, age, sex) {
-    # 				print('NOOOO');
-    # 			}
-    # 		"""
-    # code = "age is (1 plus 1); name is 'emma'"
+    			nums = |1,2,3|;
+                print(len(nums));
+    		"""
+    # code = "age is (1 plus 1); name is 'emma';print(age)"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)

@@ -3,7 +3,7 @@
 import unittest
 from input_stream import InputStream
 from token_stream import TokenStream
-from parser import parse
+from token_parser import parse
 from generate_py import make_py
 
 
