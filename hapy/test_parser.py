@@ -1,5 +1,5 @@
 import unittest
-from parser import parse
+from token_parser import parse
 from input_stream import InputStream
 from token_stream import TokenStream
 
@@ -7,8 +7,8 @@ from token_stream import TokenStream
 class TestParser(unittest.TestCase):
     """Test Parser doe"""
     """
-	- Test assignment to variable (string, num)
-	"""
+    - Test assignment to variable (string, num)
+    """
     def test_string_assignment(self):
         """test assignment to variable gives correct AST tree"""
 
@@ -89,8 +89,8 @@ class TestParser(unittest.TestCase):
 
     def test_binary_2_operands(self):
         """
-		- Test binary operators (comparative and arithmetic)
-		"""
+        - Test binary operators (comparative and arithmetic)
+        """
         code = "2 + 3"
 
         expected = {
@@ -116,9 +116,9 @@ class TestParser(unittest.TestCase):
 
     def test_binary_3_operands_ltr(self):
         """
-		Test binary operation with 3 operands in increasing order of operator
-		precedence
-		"""
+        Test binary operation with 3 operands in increasing order of operator
+        precedence
+        """
         code = "2 + 3 * 4"
 
         expected = {
@@ -152,9 +152,9 @@ class TestParser(unittest.TestCase):
 
     def test_binary_3_operands_rtl(self):
         """
-		Test binary operation with 3 operands in decreasing order of operator
-		precedence
-		"""
+        Test binary operation with 3 operands in decreasing order of operator
+        precedence
+        """
         code = "2 * 3 + 4"
 
         expected = {
@@ -188,13 +188,13 @@ class TestParser(unittest.TestCase):
 
     def test_func_def(self):
         """
-		Test function definition and expressions
-		"""
+        Test function definition and expressions
+        """
         self.maxDiff = None
         code = """
-			def sayHello(name) {
-				 2 + 3;
-			};"""
+            def sayHello(name) {
+                 2 + 3;
+            };"""
 
         expected = {
             "type":
@@ -230,8 +230,8 @@ class TestParser(unittest.TestCase):
 
     def test_func_call_var(self):
         """
-		Test function call statement
-		"""
+        Test function call statement
+        """
         code = "sayHello('Emmanuel');"
 
         expected = {
@@ -255,8 +255,8 @@ class TestParser(unittest.TestCase):
 
     def test_word_binary(self):
         """
-		Test binary operation using words and, or
-		"""
+        Test binary operation using words and, or
+        """
         code = "20 and False"
 
         expected = {
@@ -282,8 +282,8 @@ class TestParser(unittest.TestCase):
 
     def test_word_binary_arithmetic(self):
         """
-		Test binary operation using words times, plus, minus
-		"""
+        Test binary operation using words times, plus, minus
+        """
         code = "2 times 3 plus 4"
 
         expected = {
@@ -317,15 +317,15 @@ class TestParser(unittest.TestCase):
 
     def test_if(self):
         """
-		Test binary operation using words and, or
-		"""
+        Test binary operation using words and, or
+        """
         code = """
-				if (20 > 10) {
-					print('Greater!');
-				} else {
-					print('Smaller!');
-				};
-			"""
+                if (20 > 10) {
+                    print('Greater!');
+                } else {
+                    print('Smaller!');
+                };
+            """
 
         expected = {
             'type':
@@ -374,13 +374,13 @@ class TestParser(unittest.TestCase):
 
     def test_while(self):
         """
-		Test while loop statement
-		"""
+        Test while loop statement
+        """
         code = """
-				while (True) {
-					print('true!');
-				};
-			"""
+                while (True) {
+                    print('true!');
+                };
+            """
 
         expected = {
             'type':
@@ -408,12 +408,117 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(expected, actual, "Expression is a while statement")
 
+    def test_lists_1(self):
+        """
+        Test parsing lists with all numbers
+        """
+        code = "nums = [1,2,3];"
+
+        expected = {
+            "type":
+            "prog",
+            "prog": [{
+                "type": "assign",
+                "operator": "=",
+                "left": {
+                    "type": "var",
+                    "value": "nums"
+                },
+                "right": {
+                    "type":
+                    "list",
+                    "elements": [{
+                        "type": "num",
+                        "value": 1
+                    }, {
+                        "type": "num",
+                        "value": 2
+                    }, {
+                        "type": "num",
+                        "value": 3
+                    }]
+                }
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual, "Expression is a list literal")
+
+    def test_lists_2(self):
+        """
+        Test parsing lists with mix of types
+        """
+        code = "nums = [1,2,'3', [20]];"
+
+        expected = {
+            "type":
+            "prog",
+            "prog": [{
+                "type": "assign",
+                "operator": "=",
+                "left": {
+                    "type": "var",
+                    "value": "nums"
+                },
+                "right": {
+                    "type":
+                    "list",
+                    "elements": [{
+                        "type": "num",
+                        "value": 1
+                    }, {
+                        "type": "num",
+                        "value": 2
+                    }, {
+                        "type": "str",
+                        "value": "3"
+                    }, {
+                        "type": "list",
+                        "elements": [{
+                            "type": "num",
+                            "value": 20
+                        }]
+                    }]
+                }
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual,
+                         "Expression is a list with mix of element types")
+
+    def test_lists_3(self):
+        """
+        Test parsing empty list
+        """
+        code = "nums = [];"
+
+        expected = {
+            "type":
+            "prog",
+            "prog": [{
+                "type": "assign",
+                "operator": "=",
+                "left": {
+                    "type": "var",
+                    "value": "nums"
+                },
+                "right": {
+                    "type": "list",
+                    "elements": []
+                }
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual, "Expression is an empty list literal")
+
     """
-	- test function call
-	- test function definition
-	- test if statement
-	- test diff types of expressions on multiple lines
-	"""
+    - test function call
+    - test function definition
+    - test if statement
+    - test diff types of expressions on multiple lines
+    """
 
 
 if __name__ == '__main__':

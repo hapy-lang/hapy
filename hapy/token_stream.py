@@ -17,7 +17,7 @@ class TokenStream(InputStream):
         # these keywords would go somewhere else!
         # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
         # you Jesus
-        self.keywords = " if then while import from else in None return def True\
+        self.keywords = " if then while import from else in None return def list True\
         False "
         self.operator_words = " not and or is times plus dividedby minus "
 
@@ -81,7 +81,7 @@ class TokenStream(InputStream):
 
         return {
             "type": "num",
-            "value": int(number) if (not "." in number) else float(number)
+            "value": int(number) if ("." not in number) else float(number)
         }
 
     def read_identifier(self):

@@ -206,6 +206,9 @@ def parse(input: TokenStream):
                 return exp
             if is_punc("{"):
                 return parse_prog()
+            # parse lists here...
+            if is_punc("["):
+                return parse_list()
             if is_kw("if"):
                 return parse_if()
             if is_kw("while"):
@@ -225,6 +228,11 @@ def parse(input: TokenStream):
             unexpected()
 
         return maybe_call(doer)
+
+    def parse_list():
+        # TODO: I need to work on this for Python! Thank you Jesus!
+        elems = delimited("[", "]", ",", parse_atom)
+        return {"type": "list", "elements": elems}
 
     def parse_prog():
         # TODO: I need to work on this for Python! Thank you Jesus!
@@ -269,9 +277,9 @@ if __name__ == "__main__":
     #               print('Smaller!');
     #           };
     #       """
-    # code = """
-    #       biggest+smallest = 50
-    #       """
+    code = """
+          name = [1,2,3];print(name);
+          """
     # code = "age is (1 plus 1); name is 'emma'"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
