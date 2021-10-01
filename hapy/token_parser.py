@@ -25,6 +25,7 @@ def parse(input: TokenStream):
     PRECEDENCE = {
         "=": 1,
         "is": 1,
+        ".": 1,
         "or": 2,
         "and": 3,
         "<": 7,
@@ -90,7 +91,15 @@ def parse(input: TokenStream):
         input.croak(msg % json.dumps(input.peek()))
 
     def maybe_binary(left, my_prec):
-        tok = is_op(None)
+        tok = is_op(None) # thank you Jesus :]
+        # tbh, I'm not 100% sure what's going on here, but I'll find out!
+        # print(tok)
+
+        binary_type = {  # noqa: F841
+            "is": "assign",
+            "=": "assign",
+            ".": "access"
+        }
 
         if tok:
             their_prec = PRECEDENCE[tok["value"]]
@@ -98,9 +107,7 @@ def parse(input: TokenStream):
                 input.next()
                 return maybe_binary(
                     {
-                        "type":
-                        "assign" if tok["value"] == "=" or tok["value"] == "is"
-                        else "binary",
+                        "type": binary_type.get(tok["value"], "binary"),
                         "operator":
                         tok["value"],
                         "left":
@@ -278,12 +285,11 @@ if __name__ == "__main__":
     #           };
     #       """
     code = """
-          name = [1,2,3];print(name);
+          poop.lower().do().name;
           """
     # code = "age is (1 plus 1); name is 'emma'"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
-    print(tokens)
     ast = parse(tokens)
 
     print(ast)
