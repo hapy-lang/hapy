@@ -70,6 +70,7 @@ def make_py(token):
             "var": py_var,
             "binary": py_binary,
             "assign": py_assign,
+            "access": py_access,
             "function": py_function,
             "if": py_if,
             "list": py_list,
@@ -101,13 +102,23 @@ def make_py(token):
 
     def py_binary(tok):
         # just return the token
-        return "{left} {op} {right}".format(
+        if tok["operator"] == ".":
+            return "{left}{op}{right}".format(
          **{"left": pythonise(tok["left"]),
              "op": handle_operators(tok["operator"]),
              "right": pythonise(tok["right"])})
+        else:
+            return "{left} {op} {right}".format(
+             **{"left": pythonise(tok["left"]),
+                 "op": handle_operators(tok["operator"]),
+                 "right": pythonise(tok["right"])})
 
     def py_assign(tok):
         # just return the token
+        return py_binary(tok)
+
+    def py_access(tok):
+        # for dot access stuff... thank you Jesus!
         return py_binary(tok)
 
     def py_function(tok):
@@ -192,8 +203,8 @@ if __name__ == "__main__":
 			# """
 
     code = """
-    			nums = |1,2,3|;
-                print(len(nums));
+    		up = "hello".upper().isalpha();
+            print(up)
     		"""
     # code = "age is (1 plus 1); name is 'emma';print(age)"
     inputs = InputStream(code)

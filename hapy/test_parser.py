@@ -511,7 +511,39 @@ class TestParser(unittest.TestCase):
         }
         actual = parse(TokenStream(InputStream(code)))
 
-        self.assertEqual(expected, actual, "Expression is an empty list literal")
+        self.assertEqual(expected, actual,
+                         "Expression is an empty list literal")
+
+    def test_dot_access_1(self):
+        """
+        Test parsing empty list
+        """
+        code = "'hello'.isalpha();"
+
+        expected = {
+            "type":
+            "prog",
+            "prog": [{
+                "type": "access",
+                "operator": ".",
+                "left": {
+                    "type": "str",
+                    "value": "hello"
+                },
+                "right": {
+                    "type": "call",
+                    "func": {
+                        "type": "var",
+                        "value": "isalpha"
+                    },
+                    "args": []
+                }
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual,
+                         "Expression is a dot access statement")
 
     """
     - test function call
