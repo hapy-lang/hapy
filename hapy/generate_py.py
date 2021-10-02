@@ -158,8 +158,8 @@ def make_py(token, local: bool=False):
         # + pythonise(tok["then"]) + "\n" + ("\nelse:\n    " +
         # pythonise(tok["else"]) if tok.get("else", None) else "")
 
-        o = "if (" + pythonise(tok["cond"]) + "){"\
-        + pythonise(tok["then"]) + "}" + ("\nelse {" + pythonise(tok["else"]) +\
+        o = "if (" + pythonise(tok["cond"]) + "){\n"\
+        + pythonise(tok["then"]) + "}" + ("\nelse {\n" + pythonise(tok["else"]) +\
          "}" if tok.get("else", None) else "")
 
         indent_lvl -= 1
@@ -217,7 +217,7 @@ def make_py(token, local: bool=False):
     def py_prog(tok):
         # just return the token
         # TODO: maybe add closing ; at the end of the program? DISCUSS IT
-        return "\n".join(list(map(lambda x: pythonise(x), tok["prog"])))
+        return ";\n".join(list(map(lambda x: pythonise(x), tok["prog"])))
 
     return pythonise(token)
 

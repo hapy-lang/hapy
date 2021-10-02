@@ -12,8 +12,9 @@ if __name__ == "__main__":
             # print(test.__name__);
             # print(test.func1());
             # print(something);
-            print(dir(something));
-            # print(something)
+            # print(dir(something));
+            # print(something);
+            # something.sayHello('David');
          """
 
     run(transpile(code))
