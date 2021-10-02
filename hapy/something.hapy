@@ -4,14 +4,35 @@ import hello;
 
 print(hello.cow);
 
-#print(globals());
-
-#print(locals());
-
 age is 20 plus 2;
 popo.something('Emmanuel', age);
 
 do_something = "DOING SOMETHIGN!";
 
-print(dir());
-#print(dir(popo));
+def sayHello(name) {
+    print("Yo! Emmanuel. Is your name =>", name);
+};
+
+n = 0;
+
+print(n);
+
+if(True){
+    print('Nice!');
+};
+
+if (n < 5) {
+    print("Printed ", n);
+    n = n + 1;
+    print("inside if => ", n);
+    if (n == 1) {
+        print('N is one!')
+    } else {
+        print('N is not one!')
+    } 
+};
+
+
+n = n + 1;
+
+print(n);
