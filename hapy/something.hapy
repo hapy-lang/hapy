@@ -1,0 +1,17 @@
+import py_os;
+import popo; # THIS IS A CUSTOM MODULEEE!!!
+import hello;
+
+print(hello.cow);
+
+#print(globals());
+
+#print(locals());
+
+age is 20 plus 2;
+popo.something('Emmanuel', age);
+
+do_something = "DOING SOMETHIGN!";
+
+print(dir());
+#print(dir(popo));
