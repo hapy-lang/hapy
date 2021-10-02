@@ -17,7 +17,8 @@ keywords = {
     "then": "then",
     "while": "while",
     "import": "import",
-    "from": "else",
+    "from": "from",
+    "else": "else",
     "in": "in",
     "None": "None",
     "return": "return",
@@ -56,7 +57,8 @@ class TokenStream(InputStream):
         # these keywords would go somewhere else!
         # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
         # you Jesus
-        # self.keywords = " if then while import from else in None return def list True\
+        # self.keywords = " if then while import from else in None return def
+        # list True\
         # False "
         self.keywords = keywords
         self.operator_words = operator_words
@@ -76,7 +78,7 @@ class TokenStream(InputStream):
     def is_id_start(self, ch: str) -> bool:
         """Check if char is a start of a variable name (identifier)"""
 
-        return ch.isalpha()
+        return ch.isalpha() or ch in "_"
 
     def is_id(self, ch: str):
         """return True iff char is valid Python identifier"""
@@ -231,7 +233,7 @@ class TokenStream(InputStream):
 
     def eof(self):
         """check if end of file"""
-        return self.peek() == "" or self.peek() == None
+        return self.peek() == "" or self.peek() is None
 
     def croak(self, msg: str):
         """raises an error"""

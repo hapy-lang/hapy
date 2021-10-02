@@ -8,6 +8,7 @@ from token_stream import TokenStream
 from input_stream import InputStream
 from token_parser import parse
 from exector import run
+from importer import get, hapy_modules
 """
 function make_js(exp) {
     return js(exp);
@@ -57,7 +58,8 @@ def handle_operators(op: str) -> str:
         return op
 
 
-def make_py(token):
+def make_py(token, local: bool=False):
+    """local is if this file is a local file"""
 
     indent_lvl = 0
 
@@ -68,10 +70,12 @@ def make_py(token):
             "str": py_atom,
             "bool": py_atom,
             "var": py_var,
+            "module": py_var,
             "binary": py_binary,
             "assign": py_assign,
             "access": py_access,
             "function": py_function,
+            "import": py_import,
             "if": py_if,
             "list": py_list,
             "while": py_while,
@@ -82,7 +86,6 @@ def make_py(token):
         nonlocal indent_lvl
 
         doer = switch.get(token["type"], None)
-        # print('doer',doer)
 
         if not doer:
             raise Exception("Invalid Hapy code: %s" % json.dumps(token))
@@ -177,13 +180,46 @@ def make_py(token):
             ", ".join(list(map(lambda x: pythonise(x), tok["args"])))
         })
 
+    def py_import(tok):
+        """paste import statement in code
+        Importing in Hapy. You can import:
+        - Another .hapy "module"
+        - A "custom" builtin module, see popo and test lol
+        - Actual Python builtin modules, no restrictions for now!
+
+        It was challenging at first, but thank God we achieved it.
+        :)
+        """
+
+        status, imp_type, result = get(tok["module"]["value"], is_local=local)
+
+        if status and imp_type in (1, 2):
+            # this means it's a hapy builtin or
+            # another local module
+            # this adds a statement that makes that module available in the code
+            # I haven't tested it for multiple embedded imports. I'm afraid :]
+
+            o = result + "\n"
+        elif status and imp_type == 3:
+            # this means it's neither a Hapy module nor a local module...
+            # and it starts with 'py_*' this is how we differentiate Python
+            # modules in Hapy. For now...
+            o = "import {module}\n".format(**{"module": result})
+        elif not status:
+            # this module is neither a hapy builtin, custom local module
+            # or even a python module that starts with 'py_'
+            # return an error!
+            o = "# !!! Hapy cannot import {module}. Sorry :/ !!!\n".\
+            format(**{"module": tok["module"]["value"]})
+
+        return o
+
     def py_prog(tok):
         # just return the token
         # TODO: maybe add closing ; at the end of the program? DISCUSS IT
-        return ";".join(list(map(lambda x: pythonise(x), tok["prog"]))) + ";"
+        return "\n".join(list(map(lambda x: pythonise(x), tok["prog"])))
 
     return pythonise(token)
-
 
 if __name__ == "__main__":
    #  code = """
@@ -203,8 +239,13 @@ if __name__ == "__main__":
 			# """
 
     code = """
-    		up = "hello".upper().isalpha();
-            print(up)
+    		import math;
+            import test; # THIS IS A CUSTOM MODULEEE!!!
+            import something; # THIS IS A LOCAL MODULE
+            print(math.pi);
+            print(test.__name__);
+            print(test.func1());
+            print(something.do_something)
     		"""
     # code = "age is (1 plus 1); name is 'emma';print(age)"
     inputs = InputStream(code)

@@ -195,6 +195,25 @@ def parse(input: TokenStream):
             "body": parse_expression()
         }
 
+    def parse_modulename():
+        name = input.next()
+        if name["type"] != "var":
+            input.croak("Expecting variable name")
+        return {"type": "module", "value": name["value"]}
+
+    def parse_import():
+        """
+        should see an import statement and get the name of the imported
+        module and return it. That's all for now...
+        """
+        skip_kw("import")
+
+        return {
+        "type": "import",
+        "module": parse_modulename()
+        }
+
+
     def parse_bool():
         return {"type": "bool", "value": input.next()["value"] == "True"}
 
@@ -220,11 +239,15 @@ def parse(input: TokenStream):
                 return parse_if()
             if is_kw("while"):
                 return parse_while()
+            if is_kw("import"):
+                return parse_import()
             if is_kw("True") or is_kw("False"):
                 return parse_bool()
             if is_kw("def"):
                 input.next()
                 return parse_function()
+
+            # NOTE: If you don't handle tokens they will raise an error
 
             tok = input.next()
 
@@ -285,8 +308,11 @@ if __name__ == "__main__":
     #           };
     #       """
     code = """
-          poop.lower().do().name;
-          """
+            import math;
+            import test;
+            import cows;
+            print(dir(math))
+            """
     # code = "age is (1 plus 1); name is 'emma'"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
