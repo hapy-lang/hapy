@@ -212,7 +212,6 @@ class TokenStream(InputStream):
             return {"type": "punc", "value": self.input.next()}
 
         if self.is_op_char(ch):
-
             return {"type": "op", "value": self.read_op()}
 
         self.input.croak("Can't handle character: \"%s\"" % ch)
@@ -233,6 +232,7 @@ class TokenStream(InputStream):
 
     def eof(self):
         """check if end of file"""
+        
         return self.peek() == "" or self.peek() is None
 
     def croak(self, msg: str):
