@@ -9,7 +9,8 @@ from io import StringIO
 codeOut = StringIO()
 codeErr = StringIO()
 
-def run2(source: str, file = False):
+
+def run2(source: str, file=False):
     interpreter = _code.InteractiveInterpreter()
     interpreter.runsource(source, '<main>', 'exec')
 
@@ -29,7 +30,8 @@ def run(code: str):
 
     err = codeErr.getvalue()
 
-    print("error: \n%s\n" % err)
+    if err:
+        print("error: \n%s\n" % err)
 
     s = codeOut.getvalue()
 
@@ -41,10 +43,10 @@ def run(code: str):
 
 if __name__ == '__main__':
     code = """
-				if (20 > 10) {
-					print('Greater!');
-				} else {
-					print('Smaller!');
-				};
-			"""
+                if (20 > 10) {
+                    print('Greater!');
+                } else {
+                    print('Smaller!');
+                };
+            """
     run(code)

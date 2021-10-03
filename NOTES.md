@@ -73,3 +73,7 @@ import custom_module # imports a user defined custom module from the same direct
 - Does not support `from bla import foo` syntax, sorry :p
 - other notes to be added...
 ```
+
+I created some `.hapy` files for testing.
+Try importing a built-in module or another hapy module and then importing it in `main.py` then
+run main... `python main.py`

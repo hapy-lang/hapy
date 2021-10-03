@@ -13,7 +13,7 @@ def sayHello(name) {
     print("Yo! Emmanuel. Is your name =>", name);
 };
 
-n = 0;
+n = 2;
 
 print(n);
 
@@ -29,6 +29,10 @@ if (n < 5) {
         print('N is one!')
     } else {
         print('N is not one!')
+        while (n < 5) {
+    print("This is n! => ", n);
+    n = n + 1;
+};
     } 
 };
 
