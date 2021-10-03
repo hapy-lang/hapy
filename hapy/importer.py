@@ -40,6 +40,8 @@ def make_module(code: str, module_name: str):
 
     sys.modules[module_name] = my_module
 
+    # this makes this imported module available as a variable
+    # in the host file...
     return """# --- import ---\n{m} = sys.modules["{m}"];\n# --- import ---"""\
         .format(** {"m": module_name})
 

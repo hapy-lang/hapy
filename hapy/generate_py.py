@@ -8,34 +8,7 @@ from token_stream import TokenStream
 from input_stream import InputStream
 from token_parser import parse
 from exector import run
-from importer import get, hapy_modules
-"""
-function make_js(exp) {
-    return js(exp);
-
-    function js(exp) {
-        switch (exp.type) {
-          case "num"    :
-          case "str"    :
-          case "bool"   : return js_atom   (exp);
-          case "var"    : return js_var    (exp);
-          case "binary" : return js_binary (exp);
-          case "assign" : return js_assign (exp);
-          case "let"    : return js_let    (exp);
-          case "lambda" : return js_lambda (exp);
-          case "if"     : return js_if     (exp);
-          case "prog"   : return js_prog   (exp);
-          case "call"   : return js_call   (exp);
-          default:
-            throw new Error("Dunno how to make_js for " + JSON.stringify(exp));
-        }
-    }
-
-    // NOTE, all the functions below will be embedded here.
-}
-"""
-
-indent = "    "
+from importer import get
 
 word_ops = {
     "and": "and",
@@ -50,7 +23,7 @@ word_ops = {
 
 def handle_operators(op: str) -> str:
     """ convert custom operators to python operators... """
-    # check if string, else just return op
+    # check if string operator, else just return op
 
     if op.isalpha():
         return word_ops.get(op)
@@ -58,13 +31,9 @@ def handle_operators(op: str) -> str:
         return op
 
 
-def make_py(token, local: bool=False):
+def make_py(token, local: bool = False):
     """local is if this file is a local file"""
-
-    indent_lvl = 0
-
-    def pythonise(token, indent=0):
-        indent = indent
+    def pythonise(token):
         switch = {
             "num": py_atom,
             "str": py_atom,
@@ -83,8 +52,6 @@ def make_py(token, local: bool=False):
             "prog": py_prog
         }
 
-        nonlocal indent_lvl
-
         doer = switch.get(token["type"], None)
 
         if not doer:
@@ -94,53 +61,65 @@ def make_py(token, local: bool=False):
 
     # helper functions
     def py_atom(tok):
-        # just return the token
+        """reurn the value of a token"""
+
+        # if its a boolean, don't stringify the value, return it
+        # raw
         if tok["type"] == "bool":
             return "%s" % tok["value"]
         return json.dumps(tok["value"])
 
     def py_var(tok):
-        # just return the token
+        """return a plain variable value"""
+
         return tok["value"]
 
     def py_binary(tok):
-        # just return the token
+        """return a binary statement"""
+
+        # this is because we make '.' a binary operator :)
+        # and we are using this different notation cuz I don't want space
+        # between the operands... 'foo.bar' over 'foo . bar'
+
         if tok["operator"] == ".":
             return "{left}{op}{right}".format(
-         **{"left": pythonise(tok["left"]),
-             "op": handle_operators(tok["operator"]),
-             "right": pythonise(tok["right"])})
+                **{
+                    "left": pythonise(tok["left"]),
+                    "op": handle_operators(tok["operator"]),
+                    "right": pythonise(tok["right"])
+                })
         else:
             return "{left} {op} {right}".format(
-             **{"left": pythonise(tok["left"]),
-                 "op": handle_operators(tok["operator"]),
-                 "right": pythonise(tok["right"])})
+                **{
+                    "left": pythonise(tok["left"]),
+                    "op": handle_operators(tok["operator"]),
+                    "right": pythonise(tok["right"])
+                })
 
     def py_assign(tok):
-        # just return the token
+        """return an assign function"""
+
         return py_binary(tok)
 
     def py_access(tok):
-        # for dot access stuff... thank you Jesus!
+        """return dot access statement: foo.bar """
         return py_binary(tok)
 
     def py_function(tok):
-        # just return the token
-        # o is output :) thank you Jesus!
+        """return a Python function definition"""
 
         args = " ({args})".format(**{
             "args":
             ", ".join(list(map(lambda x: pythonise(x), tok["vars"])))
         })
 
-        o = "def " + pythonise(tok["name"]) + args + "{"\
-        + pythonise(tok["body"]) + "}"
+        o = "def " + pythonise(tok["name"]) + args + "{\n"\
+        + pythonise(tok["body"]) + "\n}"
 
         return o
 
     def py_list(tok):
-        # just return the token
-        # o is output :) thank you Jesus!
+        """return a Python list definition"""
 
         o = " [{args}]".format(**{
             "args":
@@ -149,27 +128,27 @@ def make_py(token, local: bool=False):
 
         return o
 
+    """ NOTE: Let all blocks be like this:
+        if [COND] {\n
+            [EXPRESSION]
+        \n}
+        Asin, the curly braces should be at the end of everyline
+    """
+
     def py_if(tok):
-        # return python looking function...
-        nonlocal indent_lvl
-        indent_lvl += 1
-        print("-" * indent_lvl)
-        # o = "\nif (" + pythonise(tok["cond"]) + "):\n    "\
-        # + pythonise(tok["then"]) + "\n" + ("\nelse:\n    " +
-        # pythonise(tok["else"]) if tok.get("else", None) else "")
+        """Python if statements"""
 
-        o = "if (" + pythonise(tok["cond"]) + "){\n"\
-        + pythonise(tok["then"]) + "}" + ("\nelse {\n" + pythonise(tok["else"]) +\
-         "}" if tok.get("else", None) else "")
+        o = "if (" + pythonise(tok["cond"]) + ") {\n"\
+        + pythonise(tok["then"]) + "\n}" + ("\nelse {\n" + pythonise(tok["else"]) +\
+         "\n}" if tok.get("else", None) else "")
 
-        indent_lvl -= 1
         return o
 
     def py_while(tok):
         """while loop, returns python while loop!"""
 
-        o = "while (" + pythonise(tok["cond"]) + "){"\
-        + pythonise(tok["then"]) + "}"
+        o = "while (" + pythonise(tok["cond"]) + ") {\n"\
+        + pythonise(tok["then"]) + "\n}"
 
         return o
 
@@ -221,32 +200,33 @@ def make_py(token, local: bool=False):
 
     return pythonise(token)
 
-if __name__ == "__main__":
-   #  code = """
-			# age = 30; # lvl 0
-			# if(age<18){ # lvl 0
-			# 	print('old!'); # lvl 1
-			# 	if(age == 30) { # lvl 1
-			# 		print('Not quite adult!')
-			# 	};
 
-			# 	while(True){
-			# 		print('popoooo!')
-			# 	};
-			# }else{
-			# 	print('YOUNG!');
-			# }
-			# """
+if __name__ == "__main__":
+    #  code = """
+    # age = 30; # lvl 0
+    # if(age<18){ # lvl 0
+    #   print('old!'); # lvl 1
+    #   if(age == 30) { # lvl 1
+    #       print('Not quite adult!')
+    #   };
+
+    #   while(True){
+    #       print('popoooo!')
+    #   };
+    # }else{
+    #   print('YOUNG!');
+    # }
+    # """
 
     code = """
-    		import math;
+            import math;
             import test; # THIS IS A CUSTOM MODULEEE!!!
             import something; # THIS IS A LOCAL MODULE
             print(math.pi);
             print(test.__name__);
             print(test.func1());
             print(something.do_something)
-    		"""
+            """
     # code = "age is (1 plus 1); name is 'emma';print(age)"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
