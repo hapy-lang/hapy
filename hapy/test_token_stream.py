@@ -66,7 +66,7 @@ class TestTokenStream(unittest.TestCase):
 
         self.assertEqual(expected, actual, "the stream is an identifier")
 
-    def test_read_operation_good(self):
+    def test_read_operator(self):
         """test identifier function"""
 
         stream1 = InputStream('>=')
@@ -101,6 +101,34 @@ class TestTokenStream(unittest.TestCase):
         actual = ts.read_next()
 
         self.assertEqual(expected, actual, "the stream is a punctuation mark")
+
+    def test_read_dot(self):
+        """test identifier function to identify dot operator"""
+        # we are treeating the '.' as a binary operator in a sense
+
+        stream = InputStream('"hello".upper()')
+
+        ts = TokenStream(stream)
+
+        expected = {"type": "op", "value": "."}
+
+        ts.read_next() # first token
+        actual = ts.read_next() # 2nd...
+
+        self.assertEqual(expected, actual, "Expected a dot token")
+
+    def test_import_statement_1(self):
+        """test token stream reading import tokens"""
+
+        stream = InputStream('import names;')
+
+        ts = TokenStream(stream)
+
+        expected = [{"type": "kw", "value": "import"}, {"type": "var", "value": "names"}]
+
+        actual = [ts.read_next(), ts.read_next()] # 2nd...
+
+        self.assertEqual(expected, actual, "Expected import and names keywords")
 
 
 if __name__ == "__main__":
