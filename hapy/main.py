@@ -4,12 +4,13 @@ from transpiler import transpile
 if __name__ == "__main__":
    # Just testing das'all...
     code = """
-            # def hello(name="Emma"){
-            def hello(name){
-               print('Hello %s' % name);
+            import py_math;
+
+            def hello(age, name="Emma"){
+               print('Hello %s' % name, 'you are %d' % age)
             };
 
-            hello();
+            hello(20.3);
          """
 
     run(transpile(code))

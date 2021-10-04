@@ -94,7 +94,6 @@ def parse(input: TokenStream):
     def maybe_binary(left, my_prec):
         tok = is_op(None) # thank you Jesus :]
         # tbh, I'm not 100% sure what's going on here, but I'll find out!
-        # print(tok)
 
         binary_type = {  # noqa: F841
             "is": "assign",
@@ -210,7 +209,9 @@ def parse(input: TokenStream):
             "type": "function",
             "name": parse_varname(
             ),  # get variable name, that should be the next thing! Thank you Jesus
-            "vars": delimited("(", ")", ",", parse_varname),
+            # we are using parse_expression because the args could actually
+            # be expressions like assingment def foo(b=1) {...}
+            "vars": delimited("(", ")", ",", parse_expression),
             "body": parse_expression()
         }
 
@@ -329,13 +330,14 @@ if __name__ == "__main__":
     #           };
     #       """
     code = """
-            for (n in [1,2,3]) {
-                print(n)
-            }
-            """
+        def hello(name){
+           print('Hello %s' % name)
+        };
+
+        hello();
+    """
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)
 
     print(ast)
-    # unexpected()
