@@ -38,9 +38,10 @@ if __name__ == '__main__':
     #  };
     #          """
     code = """
-    if (True) {
-        print(2);
-    }
+         numbers is [1,2,3];
+         for (num in numbers) {
+            print("Num => ",num);
+        };
     """
 
-    print(transpile(code, no_indent=False))
+    run(transpile(code, no_indent=False))
