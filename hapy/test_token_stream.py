@@ -130,6 +130,19 @@ class TestTokenStream(unittest.TestCase):
 
         self.assertEqual(expected, actual, "Expected import and names keywords")
 
+    def test_forloop_statement_1(self):
+        """test token stream reading forloop statement"""
+
+        stream = InputStream('for (a in b) {\n print(a); };')
+
+        ts = TokenStream(stream)
+
+        expected = {"type": "kw", "value": "for"};
+
+        actual = ts.read_next()
+
+        self.assertEqual(expected, actual, "Expected for loop keyword")
+
 
 if __name__ == "__main__":
     unittest.main()

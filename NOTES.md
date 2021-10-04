@@ -77,3 +77,17 @@ import custom_module # imports a user defined custom module from the same direct
 I created some `.hapy` files for testing.
 Try importing a built-in module or another hapy module and then importing it in `main.py` then
 run main... `python main.py`
+
+## for loops
+
+so apparently, this is invalid syntax in Python:
+
+```python
+for (n in range(10)): # brackets not allowed in the header of forloops?
+	print(n)
+```
+
+```python
+for n in range(10): # this is fine... but it works for while loops and ifs
+	print(n)
+```

@@ -10,6 +10,8 @@ codeOut = StringIO()
 codeErr = StringIO()
 
 
+# I'm not sure if we need this still. I know sha that we need a way
+# to set the exec know what module is running...
 def run2(source: str, file=False):
     interpreter = _code.InteractiveInterpreter()
     interpreter.runsource(source, '<main>', 'exec')

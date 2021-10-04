@@ -15,6 +15,7 @@ word_ops = {
     "and": "and",
     "or": "or",
     "is": "=",
+    "in": "in",
     "plus": "+",
     "minus": "-",
     "times": "*",
@@ -42,6 +43,7 @@ def make_py(token, local: bool = False):
             "var": py_var,
             "module": py_var,
             "binary": py_binary,
+            "membership": py_binary,
             "assign": py_assign,
             "access": py_access,
             "function": py_function,
@@ -49,6 +51,7 @@ def make_py(token, local: bool = False):
             "if": py_if,
             "list": py_list,
             "while": py_while,
+            "for": py_forloop,
             "call": py_call,
             "prog": py_prog
         }
@@ -153,6 +156,14 @@ def make_py(token, local: bool = False):
 
         return o
 
+    def py_forloop(tok):
+        """forloop, returns python while loop!"""
+
+        o = "for " + pythonise(tok["header"]) + " {\n"\
+        + pythonise(tok["body"]) + "\n}"
+
+        return o
+
     def py_call(tok):
         # just return the token
         return pythonise(tok["func"]) + "({args})".format(**{
@@ -203,36 +214,21 @@ def make_py(token, local: bool = False):
 
 
 if __name__ == "__main__":
-    #  code = """
-    # age = 30; # lvl 0
-    # if(age<18){ # lvl 0
-    #   print('old!'); # lvl 1
-    #   if(age == 30) { # lvl 1
-    #       print('Not quite adult!')
-    #   };
 
-    #   while(True){
-    #       print('popoooo!')
-    #   };
-    # }else{
-    #   print('YOUNG!');
-    # }
-    # """
-
-    code = """
-            import math;
-            import test; # THIS IS A CUSTOM MODULEEE!!!
-            import something; # THIS IS A LOCAL MODULE
-            print(math.pi);
-            print(test.__name__);
-            print(test.func1());
-            print(something.do_something)
-            """
-    # code = "age is (1 plus 1); name is 'emma';print(age)"
+    # code = """
+    #         import math;
+    #         import test; # THIS IS A CUSTOM MODULEEE!!!
+    #         import something; # THIS IS A LOCAL MODULE
+    #         print(math.pi);
+    #         print(test.__name__);
+    #         print(test.func1());
+    #         print(something.do_something)
+    #         """
+    code = "age is (1 plus 1); name is 'emma';print(age)"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)
     python_code = make_py(ast)
 
     print(python_code)
-    run(python_code)
+    # run(python_code)
