@@ -119,11 +119,11 @@ if __name__ == '__main__':
     # print("N is not one!")}}
     #     """
     code = """
-    if (True) {
-    print(2);
-    }
+        for (num in numbers) {
+            print("Num => ",num)
+        }
     """
-    print(repr(indent(code)))
+    print(indent(code))
 
     # n = 0;
     # if (n < 5):

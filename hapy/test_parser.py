@@ -545,6 +545,54 @@ class TestParser(unittest.TestCase):
         self.assertEqual(expected, actual,
                          "Expression is a dot access statement")
 
+    def test_forloop_statement_1(self):
+        """
+        Test parsing empty list
+        """
+        code = """
+            for (n in [1]) {
+                print(n);
+            };
+            """
+
+        expected = {
+            'type':
+            'prog',
+            'prog': [{
+                'type': 'for',
+                'header': {
+                    'type': 'membership',
+                    'operator': 'in',
+                    'left': {
+                        'type': 'var',
+                        'value': 'n'
+                    },
+                    'right': {
+                        'type':
+                        'list',
+                        'elements': [{
+                            'type': 'num',
+                            'value': 1
+                        }]
+                    }
+                },
+                'body': {
+                    'type': 'call',
+                    'func': {
+                        'type': 'var',
+                        'value': 'print'
+                    },
+                    'args': [{
+                        'type': 'var',
+                        'value': 'n'
+                    }]
+                }
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual, "Expression is a forloop statement")
+
     """
     - test function call
     - test function definition

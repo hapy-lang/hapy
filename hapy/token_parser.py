@@ -25,6 +25,7 @@ def parse(input: TokenStream):
     PRECEDENCE = {
         "=": 1,
         "is": 1,
+        "in": 1, # not 100% sure why this has 1 precedence :p
         ".": 1,
         "or": 2,
         "and": 3,
@@ -98,7 +99,8 @@ def parse(input: TokenStream):
         binary_type = {  # noqa: F841
             "is": "assign",
             "=": "assign",
-            ".": "access"
+            ".": "access",
+            "in": "membership"
         }
 
         if tok:
@@ -186,6 +188,23 @@ def parse(input: TokenStream):
 
         return ret
 
+    def parse_forloop():
+        """ read a for-loop expression """
+
+        skip_kw("for")
+
+        header = parse_expression() # the iterator...
+
+        body = parse_expression()
+
+        ret = {
+            "type": "for",
+            "header": header,
+            "body": body
+        }
+
+        return ret
+
     def parse_function():
         return {
             "type": "function",
@@ -239,6 +258,8 @@ def parse(input: TokenStream):
                 return parse_if()
             if is_kw("while"):
                 return parse_while()
+            if is_kw("for"):
+                return parse_forloop()
             if is_kw("import"):
                 return parse_import()
             if is_kw("True") or is_kw("False"):
@@ -308,12 +329,10 @@ if __name__ == "__main__":
     #           };
     #       """
     code = """
-            import math;
-            import test;
-            import cows;
-            print(dir(math))
+            for (n in [1,2,3]) {
+                print(n)
+            }
             """
-    # code = "age is (1 plus 1); name is 'emma'"
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)
