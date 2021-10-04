@@ -15,12 +15,6 @@ popo.something('Emmanuel', age);
 def main() {
     print(hello.cow);
 
-
-
-    
-
- 
-
     n = 2;
 
     print(n);
