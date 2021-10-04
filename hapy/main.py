@@ -6,11 +6,12 @@ if __name__ == "__main__":
     code = """
             import py_math;
 
-            def hello(age, name="Emma"){
-               print('Hello %s' % name, 'you are %d' % age)
+            def hello(year, age, name="Emma"){
+               print('Hello %s' % name, 'you are %d' % age);
+               print('You were born in %d' % year)
             };
 
-            hello(20.3);
+            hello(age=20.3, year=1999);
          """
 
     run(transpile(code))
