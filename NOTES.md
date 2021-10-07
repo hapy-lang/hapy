@@ -11,7 +11,7 @@ This dialect should be able to be used to teach Python. That's it!
 - [x] for loops
 - [x] lists
 - [ ] dicts
-- [ ] classes
+- [x] classes
 - [x] dot notation for accessing object methods
 - [ ] accessing iterator elements // list[0] # maybe we'll just use a special function :]
 # Like list.get(2) ...
@@ -108,6 +108,8 @@ class ClassName inherits ParentClass {
 	has name;
 	has age = 0;
 
+	use ParentClass(name);
+
 	def when_created() { # special constructor function (i don't want it to start with 'def o!)
 		print('Initialized!');
 	};
@@ -134,9 +136,8 @@ class ClassName(ParentClass):
 
 	def __init__(self, name, age = 0):
 		# for parent class stuff...
-		super(ParentClass, self).__init__()
+		super().__init__(name)
 
-		self.name = name
 		self.age = age
 
 		print('Initialized!')
@@ -144,10 +145,10 @@ class ClassName(ParentClass):
 	def __str__(self): # special constructor function
 		print('Initialized!')
 
-	def __repr__(): # special constructor function
+	def __repr__(self): # special constructor function
 		print('Initialized!')
 
-	def greet(): # i think just a regular function definition makes sense?
+	def greet(self): # i think just a regular function definition makes sense?
 		# we pass self for you!
 		print('Hello! my name is => ', self.name)
 ```

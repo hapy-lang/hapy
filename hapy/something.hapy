@@ -33,14 +33,14 @@ class Rectangle {
 };
 
 class Square inherits Rectangle {
-    has length;
+    has length = 20;
 
     use Rectangle(length, length);
 
     def when_created() {};
 };
 
-sq = Square(4);
+sq = Square();
 
 print(sq.area());
 
