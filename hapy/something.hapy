@@ -1,50 +1,66 @@
-import py_os;
-import popo; # THIS IS A CUSTOM MODULEEE!!!
-import hello;
+class Person {
+    has name;
+    has age = 0;
+    has has_genes = True;
 
-def sayHello(name) {
-        print("Yo! Emmanuel. Is your name =>", name);
+    def when_created() {
+        print("Person was created!")
+    };
+
+    def say_hello() {
+       return ("Hello, my name is " + self.name);
+    };
+
+    def add_age() {
+        self.age = self.age + 1;
+    };
 };
 
-do_something = "DOING SOMETHIGN!";
+class Rectangle {
+    has length;
+    has width;
 
-age is 20 plus 2;
+    def when_created() {};
 
-popo.something('Emmanuel', age);
-
-def main() {
-    print(hello.cow);
-
-    n = 2;
-
-    print(n);
-
-    if(True){
-        print('Nice!');
+    def area() {
+        return self.length * self.width;
     };
 
-    if (n < 5) {
-        print("Printed ", n);
-        n = n + 1;
-        print("inside if => ", n);
-        if (n == 1) {
-            print('N is one!');
-        } else {
-            print('N is not one!');
-            while (n < 5) {
-        print("This is n! => ", n);
-        n = n + 1;
-    };
-        } 
+    def perimeter() {
+        return 2 * self.length + 2 * self.width;
     };
 
-
-    n = n + 1;
-
-    print(n);
 };
 
+class Square inherits Rectangle {
+    has length = 20;
 
-if (__name__ == '__main__') {
-    main()
-}
+    use Rectangle(length, length);
+
+    def when_created() {};
+};
+
+sq = Square();
+
+print(sq.area());
+
+class Cube inherits Square {
+    
+    # don't add the initializer if you aren't initializing anything! :9
+    # def when_created() {};
+
+    def surface_area() {
+        face_area = super().area();
+        return face_area * 6;
+    };
+
+    def volume() {
+        face_area = super().area();
+        return face_area * self.length;
+    };
+};
+
+c = Cube(3);
+
+print(c.surface_area());
+print(c.volume());
