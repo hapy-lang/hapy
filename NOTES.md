@@ -128,18 +128,18 @@ class ClassName inherits ParentClass {
 
 ```
 
-```text
+```python
 class ClassName(ParentClass):
 	# we'll add support for docstring later
 
-	def __init__(self, name, age):
-	  # for parent class stuff...
-      super(ClassName, self).__init__()
+	def __init__(self, name, age = 0):
+		# for parent class stuff...
+		super(ParentClass, self).__init__()
 
-      self.name = name
-      self.age = age
+		self.name = name
+		self.age = age
 
-      print('Initialized!')
+		print('Initialized!')
 
 	def __str__(self): # special constructor function
 		print('Initialized!')
@@ -150,5 +150,4 @@ class ClassName(ParentClass):
 	def greet(): # i think just a regular function definition makes sense?
 		# we pass self for you!
 		print('Hello! my name is => ', self.name)
-
 ```

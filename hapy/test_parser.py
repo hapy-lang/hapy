@@ -667,6 +667,8 @@ class TestParser(unittest.TestCase):
             class Woman inherits Person {
                 has height;
                 has age = 22;
+
+                use Person(height);
             }
             """
 

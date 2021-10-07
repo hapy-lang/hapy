@@ -7,9 +7,28 @@ if __name__ == "__main__":
    code = """
          import something;
 
-         p = something.Person(name="a", school="v");
+         # I'm not sure if 'someting.Person' will work...
+         Person = something.Person;
 
-         print(p);
+         class Man inherits Person {
+          has name;
+          has has_pp;
+          has age;
+          has title = 'Mr.';
+          has gender = 'male';
+
+          use Person(name);
+
+          def when_created() {
+              print("Man was created!")
+          };
+
+         };
+
+         frank = Man(name="Frank Abgna", has_pp=True, age=20);
+
+         print(frank.say_hello());
+         print(issubclass(Man, Person));
 
          """
 

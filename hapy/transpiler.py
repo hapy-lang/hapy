@@ -38,28 +38,50 @@ if __name__ == '__main__':
     #  };
     #          """
     code = """
-       class Person {
-            has name = "Cow";
-            has school = "goat";
-            has age = 22;
+    class Rectangle {
+    has length;
+    has width;
 
-            def when_created() {
-                print('YOOOO!', self);
-            };
+    def when_created() {};
 
-            def shout() {
-                print("YEEEEEE!");
-            }
-       };
+    def area() {
+        return self.length * self.width;
+    };
 
-       g = Person();
+    def perimeter() {
+        return 2 * self.length + 2 * self.width;
+    };
 
-       print(g.name);
+};
 
-       g.names = "I CHANGED YOUR NAME MUAHAHAHA!";
+class Square inherits Rectangle {
+    has length;
 
-       print(dir(g));
+    use Rectangle(length, length);
 
+    def when_created() {};
+};
+
+sq = Square(4);
+
+print(sq.area());
+
+class Cube inherits Square {
+
+    def surface_area() {
+        face_area = super().area();
+        return face_area * 6;
+    };
+
+    def volume() {
+        face_area = super().area();
+        return face_area * self.length;
+    };
+};
+
+c = Cube(3);
+
+print(c.surface_area());
     """
 
-    run(transpile(code, no_indent=False))
+    print(transpile(code, no_indent=False))

@@ -24,7 +24,7 @@ def parse(input: TokenStream):
     """parse input to AST tokens"""
 
     PRECEDENCE = {
-        "=": 1, # not 100% sure why this has 1 precedence :p
+        "=": 1,  # not 100% sure why this has 1 precedence :p
         "or": 2,
         "and": 3,
         "<": 7,
@@ -94,7 +94,7 @@ def parse(input: TokenStream):
         input.croak(msg % json.dumps(input.peek()))
 
     def maybe_binary(left, my_prec):
-        tok = is_op(None) # thank you Jesus :]
+        tok = is_op(None)  # thank you Jesus :]
         # tbh, I'm not 100% sure what's going on here, but I'll find out!
 
         binary_type = {  # noqa: F841
@@ -112,12 +112,9 @@ def parse(input: TokenStream):
                 return maybe_binary(
                     {
                         "type": binary_type.get(tok["value"], "binary"),
-                        "operator":
-                        tok["value"],
-                        "left":
-                        left,
-                        "right":
-                        maybe_binary(parse_atom(), their_prec)
+                        "operator": tok["value"],
+                        "left": left,
+                        "right": maybe_binary(parse_atom(), their_prec)
                     }, my_prec
                 )  # made a mistake here initially, put their_prec instead :|
 
@@ -195,15 +192,11 @@ def parse(input: TokenStream):
 
         skip_kw("for")
 
-        header = parse_expression() # the iterator...
+        header = parse_expression()  # the iterator...
 
         body = parse_expression()
 
-        ret = {
-            "type": "for",
-            "header": header,
-            "body": body
-        }
+        ret = {"type": "for", "header": header, "body": body}
 
         return ret
 
@@ -224,7 +217,7 @@ def parse(input: TokenStream):
             ret["type"] = "function"
 
         ret = {
-              # get variable name, that should be the next thing! Thank you Jesus
+            # get variable name, that should be the next thing! Thank you Jesus
             # we are using parse_expression because the args could actually
             # be expressions like assingment def foo(b=1) {...}
             **ret,
@@ -253,10 +246,7 @@ def parse(input: TokenStream):
         # next, get the class name
         classname = parse_varname()
 
-        ret = {
-            "type": "class",
-            "name": classname
-        }
+        ret = {"type": "class", "name": classname}
 
         # if the next token is 'inherits' then get parent class name!...
         # thank you Jesus!
@@ -292,6 +282,13 @@ def parse(input: TokenStream):
                 ret["class_special_methods"].append(e)
             elif e["type"] == "function":
                 ret["class_methods"].append(e)
+            # this is to initialize the parent class
+            elif e["type"] == "use_class":
+                ret["init_parent"] = e
+                # make sure classes are the same!
+                if ret["init_parent"]["func"]["value"] != ret["inherits"][
+                        "value"]:
+                    input.croak("Parent class not initialized!")
 
         return ret
 
@@ -308,10 +305,7 @@ def parse(input: TokenStream):
         """
         skip_kw("import")
 
-        return {
-        "type": "import",
-        "module": parse_modulename()
-        }
+        return {"type": "import", "module": parse_modulename()}
 
     def parse_return():
         """
@@ -320,10 +314,18 @@ def parse(input: TokenStream):
         """
         skip_kw("return")
 
-        return {
-        "type": "return",
-        "expression": parse_expression()
-        }
+        return {"type": "return", "expression": parse_expression()}
+
+    def parse_class_use():
+        """returns the attributes that this class uses"""
+
+        skip_kw("use")
+
+        d = parse_atom()
+
+        d["type"] = "use_class"
+
+        return d
 
     def parse_classprop():
         """
@@ -331,9 +333,7 @@ def parse(input: TokenStream):
         """
         skip_kw("has")
 
-        ret = {
-            "type": "class_property"
-        }
+        ret = {"type": "class_property"}
 
         # get the name or expression...
         p = maybe_binary(parse_atom(), 0)
@@ -348,7 +348,6 @@ def parse(input: TokenStream):
         # TODO: maybe throw an error here...
 
         return p
-
 
     def parse_bool():
         return {"type": "bool", "value": input.next()["value"] == "True"}
@@ -385,6 +384,8 @@ def parse(input: TokenStream):
                 return parse_return()
             if is_kw("has"):
                 return parse_classprop()
+            if is_kw("use"):
+                return parse_class_use()
             if is_kw("True") or is_kw("False"):
                 return parse_bool()
             if is_kw("def"):
@@ -452,9 +453,15 @@ if __name__ == "__main__":
     #           };
     #       """
     code = """
-       class Cow {
+       class Cow inherits Animal {
         has name;
         has color = "green";
+
+        use Animal(name, name);
+
+        def when_created() {
+            print('Hi! Thank you Jesus!');
+        }
        }
     """
     inputs = InputStream(code)

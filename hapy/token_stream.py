@@ -21,6 +21,7 @@ keywords = {
     "class": "class",
     "has": "has",
     "inherits": "inherits",
+    "use": "use",
     "pass": "pass",
     "from": "from",
     "else": "else",

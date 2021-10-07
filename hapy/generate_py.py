@@ -1,6 +1,8 @@
 """
 generate the python code from AST tree
 AST -> Abstract Syntax Tree... thank you Jesus!
+
+THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
 """
 
 import json
@@ -10,7 +12,6 @@ from input_stream import InputStream
 from token_parser import parse
 from exector import run
 from importer import get
-
 """ NOTE: Let all blocks be like this:
     if [COND] {\n
         [EXPRESSION]
@@ -38,6 +39,25 @@ def handle_operators(op: str) -> str:
         return word_ops.get(op)
     else:
         return op
+
+def is_in_parents_props(prop_name: str, parent_props) -> bool:
+    """For every prop in parent check if that prop is same as the passed prop
+        if so, stop searching and return found
+    """
+    found = False
+    i = 0
+
+    if len(parent_props) <= 0:
+        return found
+
+    while not found and i < len(parent_props):
+        p = parent_props[i]
+        if p.get("value", None) == prop_name or p.get("left", None) == prop_name:
+            found = True
+        i += 1
+
+    return found
+
 
 
 def make_py(token, local: bool = False):
@@ -93,17 +113,16 @@ def make_py(token, local: bool = False):
         """return a plain variable value"""
         if "default_value" in tok:
             return "{left}{op}{right}".format(
-            **{
-                "left": pythonise(tok["value"]),
-                "op": "=",
-                "right": pythonise(tok["default_value"])
-            })
+                **{
+                    "left": pythonise(tok["value"]),
+                    "op": "=",
+                    "right": pythonise(tok["default_value"])
+                })
 
         return tok["value"]
 
     def py_binary(tok):
         """return a binary statement"""
-
         """ this is because we make '.' a binary operator :)
                         and we are using this different notation cuz I don't want space
                         between the operands... 'foo.bar' over 'foo . bar'
@@ -112,7 +131,6 @@ def make_py(token, local: bool = False):
 
         # if tok["operator"] == ".":
 
-
         #     return "{left}{op}{right}".format(
         #         **{
         #             "left": pythonise(tok["left"]),
@@ -120,7 +138,6 @@ def make_py(token, local: bool = False):
         #             "right": pythonise(tok["right"])
         #         })
         # else:
-
         """if this is a regular binary operator, then give space!"""
         return "{left}{s}{op}{s}{right}".format(
             **{
@@ -239,7 +256,9 @@ def make_py(token, local: bool = False):
         methods = ""
         if "class_methods" in tok:
             methods = ";\n".join(
-                list(map(lambda x: py_function(x, class_method=True), tok["class_methods"])))
+                list(
+                    map(lambda x: py_function(x, class_method=True),
+                        tok["class_methods"])))
 
         # Add body expressions, if any. Usually this is None
         class_body = ""
@@ -256,6 +275,9 @@ def make_py(token, local: bool = False):
 
         # Make the __init__ function header with arguments, if any
         # i.e def __init__(self, {args}){\n
+
+        # find similar stuff...
+
         init_header = "def __init__(self, {args})".format(
             **{
                 "args":
@@ -267,7 +289,18 @@ def make_py(token, local: bool = False):
 
         # if this class inherits another, add the super() statement...
         if "inherits" in tok:
-            init_body += "super({}, self).__init__();\n".format(tok["inherits"]["value"])
+            args = ""
+
+            # TODO (!!!!): prevent duplicating attributes that were sent to Parent in
+            # the _init_ also!
+
+            if "init_parent" in tok and tok["init_parent"].get("args", None):
+                args = ", ".join(
+                    list(
+                        map(lambda x: pythonise(x),
+                            tok["init_parent"]["args"])))
+
+            init_body += "super().__init__({});\n".format(args)
 
         # if there are class properties, add the initializations here...
         if len(tok["class_properties"]) > 0:
@@ -276,11 +309,15 @@ def make_py(token, local: bool = False):
             for p in tok["class_properties"]:
                 # if it has a default value, make that property
                 # equal to the default value...
-                if p["type"] == "var":
-                    init_body += "self.{prop_name} = {prop_name}".format(**{"prop_name": p["value"]}) + ";\n"
-                elif p["type"] == "assign":
+                if p["type"] == "var" and not is_in_parents_props(p["value"], tok.get("init_parent", {}).get("args", [])):
+                    # only do this if the prop_name is not in init_class props
+
+                    init_body += "self.{prop_name} = {prop_name}".format(
+                        **{"prop_name": p["value"]}) + ";\n"
+                elif p["type"] == "assign" and not is_in_parents_props(p["left"]["value"], tok.get("init_parent", {}).get("args", [])):
                     # it means, the var is in assign!
-                    init_body += "self.{prop_name} = {prop_name}".format(**{"prop_name": p["left"]["value"]}) + ";\n"
+                    init_body += "self.{prop_name} = {prop_name}".format(
+                        **{"prop_name": p["left"]["value"]}) + ";\n"
 
         # the expressions inside the __init__ body
         if init_token.get("body", None):
@@ -346,11 +383,13 @@ if __name__ == "__main__":
             has name;
             has age = 22;
 
+            use Goat(name);
+
             def when_created() {
                 print('1')
             };
 
-            def jump(fish, u,e,s) {
+            def jump(fish,u,e,s) {
                 self.name * 2;
             };
        }
@@ -362,4 +401,3 @@ if __name__ == "__main__":
     python_code = make_py(ast)
 
     print(python_code)
-    # run(python_code)
