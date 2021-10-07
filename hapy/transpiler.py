@@ -38,10 +38,28 @@ if __name__ == '__main__':
     #  };
     #          """
     code = """
-         numbers is [1,2,3];
-         for (num in numbers) {
-            print("Num => ",num);
-        };
+       class Person {
+            has name = "Cow";
+            has school = "goat";
+            has age = 22;
+
+            def when_created() {
+                print('YOOOO!', self);
+            };
+
+            def shout() {
+                print("YEEEEEE!");
+            }
+       };
+
+       g = Person();
+
+       print(g.name);
+
+       g.names = "I CHANGED YOUR NAME MUAHAHAHA!";
+
+       print(dir(g));
+
     """
 
     run(transpile(code, no_indent=False))

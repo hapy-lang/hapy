@@ -1,50 +1,21 @@
-import py_os;
-import popo; # THIS IS A CUSTOM MODULEEE!!!
-import hello;
+class Person {
+    has name;
+    has school;
+    has age = 22;
 
-def sayHello(name) {
-        print("Yo! Emmanuel. Is your name =>", name);
+    def when_created() {
+        print(self.name, " Was created!")
+    };
+
+    def when_string() {
+        return "<Class>";
+    };
+
+    def when_printed() {
+        return "[Class]";
+    };
+
+    def say_hello() {
+       return self.name * 2;
+    };
 };
-
-do_something = "DOING SOMETHIGN!";
-
-age is 20 plus 2;
-
-popo.something('Emmanuel', age);
-
-def main() {
-    print(hello.cow);
-
-    n = 2;
-
-    print(n);
-
-    if(True){
-        print('Nice!');
-    };
-
-    if (n < 5) {
-        print("Printed ", n);
-        n = n + 1;
-        print("inside if => ", n);
-        if (n == 1) {
-            print('N is one!');
-        } else {
-            print('N is not one!');
-            while (n < 5) {
-        print("This is n! => ", n);
-        n = n + 1;
-    };
-        } 
-    };
-
-
-    n = n + 1;
-
-    print(n);
-};
-
-
-if (__name__ == '__main__') {
-    main()
-}

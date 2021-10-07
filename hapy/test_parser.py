@@ -568,8 +568,7 @@ class TestParser(unittest.TestCase):
                         'value': 'n'
                     },
                     'right': {
-                        'type':
-                        'list',
+                        'type': 'list',
                         'elements': [{
                             'type': 'num',
                             'value': 1
@@ -592,6 +591,128 @@ class TestParser(unittest.TestCase):
         actual = parse(TokenStream(InputStream(code)))
 
         self.assertEqual(expected, actual, "Expression is a forloop statement")
+
+    def test_class_1(self):
+        """
+        Test parsing empty class
+        """
+        code = """
+            class Woman {
+
+            }
+            """
+
+        expected = {
+            'type':
+            'prog',
+            'prog': [{
+                'type': 'class',
+                'name': {
+                    'type': 'var',
+                    'value': 'Woman'
+                },
+                'body': {
+                    'type': 'var',
+                    'value': 'pass'
+                },
+                'class_properties': [],
+                'class_special_methods': [],
+                'class_methods': []
+            }]
+        }
+        actual = parse(TokenStream(InputStream(code)))
+
+        self.assertEqual(expected, actual,
+                         "Expression is an empty class statement")
+
+    def test_class_2(self):
+        """
+        Test parsing class with properties
+        """
+        code = """
+            class Woman {
+                has height;
+                has age = 22;
+            }
+            """
+
+        # I'm expecting that there's a class_special_methods object with some properties
+        expected = [{
+            'type': 'var',
+            'value': 'height'
+        }, {
+            'type': 'assign',
+            'operator': '=',
+            'left': {
+                'type': 'var',
+                'value': 'age'
+            },
+            'right': {
+                'type': 'num',
+                'value': 22
+            }
+        }]
+        parsed = parse(TokenStream(InputStream(code)))
+        actual = parsed["prog"][0]["class_properties"]
+
+        self.assertEqual(
+            expected, actual,
+            "Expression is a class statement with some properties")
+
+    def test_class_3(self):
+        """
+        Test parsing class with a parent class
+        """
+        code = """
+            class Woman inherits Person {
+                has height;
+                has age = 22;
+            }
+            """
+
+        # I'm expecting that there's a class_special_methods object with some properties
+        expected = {'type': 'var', 'value': 'Person'}
+        parsed = parse(TokenStream(InputStream(code)))
+        actual = parsed["prog"][0]["inherits"]
+
+        self.assertEqual(
+            expected, actual,
+            "Expression is a class statement that inherits another class")
+
+    def test_class_4(self):
+        """
+        Test parsing class with methods
+        """
+        code = """
+            class Man {
+                has height;
+                has age = 22;
+
+                def scream() {
+
+                }
+            }
+            """
+
+        # I'm expecting that there's a class_special_methods object with some properties
+        expected = {
+            "type": "function",
+            "name": {
+                "type": "var",
+                "value": "scream"
+            },  # now varnames are proper tokens!
+            "vars": [],
+            "body": {
+                "type": "var",
+                "value": "pass"
+            }
+        }
+        parsed = parse(TokenStream(InputStream(code)))
+        actual = parsed["prog"][0]["class_methods"][0]
+
+        self.assertEqual(
+            expected, actual,
+            "Expression is a class statement with a class method")
 
     """
     - test function call

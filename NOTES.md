@@ -8,17 +8,24 @@ This dialect should be able to be used to teach Python. That's it!
 - [x] if statements // since version 0.0.1
 - [x] WHILE statements
 --- okay for now :)
-- [ ] for loops
-- [ ] lists
+- [x] for loops
+- [x] lists
 - [ ] dicts
 - [ ] classes
-- [ ] dot notation for accessing object methods
-- [ ] accessing iterator elements // list[0]
+- [x] dot notation for accessing object methods
+- [ ] accessing iterator elements // list[0] # maybe we'll just use a special function :]
+# Like list.get(2) ...
  not really important:
-- [ ] import statements
-- [ ] switch statements
+- [x] import statements # not _fully_ tested yet :]
+- [ ] switch statements # hmm...
 
 ```
+
+### NOTES
+- 1. Always check if token_stream recognizes the new keyword you added by
+including it in the list of keywords... 
+- 2. I noticed `return self.name * 2;` this returned the wrong thing. The precendence should be like this
+ `return (self.name) * 2` - has been fixed btw
 
 While is like if
 
@@ -90,4 +97,58 @@ for (n in range(10)): # brackets not allowed in the header of forloops?
 ```python
 for n in range(10): # this is fine... but it works for while loops and ifs
 	print(n)
+```
+
+## Classes
+
+```text
+class ClassName inherits ParentClass {
+	# these are just expressions. Maybe I should loop through and rearrange them
+	# from [{random tokens}] to {"properties", "class_funcs", "methods"}
+	has name;
+	has age = 0;
+
+	def when_created() { # special constructor function (i don't want it to start with 'def o!)
+		print('Initialized!');
+	};
+
+	def when_string() { # special constructor function
+		print('Initialized!');
+	};
+
+	def when_printed() { # special constructor function
+		print('Initialized!');
+	};
+
+	def greet() { # i think just a regular function definition makes sense?
+		# we pass self for you!
+		print('Hello! my name is => ', self.name);
+	}
+}
+
+```
+
+```text
+class ClassName(ParentClass):
+	# we'll add support for docstring later
+
+	def __init__(self, name, age):
+	  # for parent class stuff...
+      super(ClassName, self).__init__()
+
+      self.name = name
+      self.age = age
+
+      print('Initialized!')
+
+	def __str__(self): # special constructor function
+		print('Initialized!')
+
+	def __repr__(): # special constructor function
+		print('Initialized!')
+
+	def greet(): # i think just a regular function definition makes sense?
+		# we pass self for you!
+		print('Hello! my name is => ', self.name)
+
 ```

@@ -1,17 +1,16 @@
 from exector import run, run2
 from transpiler import transpile
+import math
 
 if __name__ == "__main__":
    # Just testing das'all...
-    code = """
-            import py_math;
+   code = """
+         import something;
 
-            def hello(year, age, name="Emma"){
-               print('Hello %s' % name, 'you are %d' % age);
-               print('You were born in %d' % year)
-            };
+         p = something.Person(name="a", school="v");
 
-            hello(age=20.3, year=1999);
+         print(p);
+
          """
 
-    run(transpile(code))
+   run2(transpile(code))

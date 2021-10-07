@@ -6,7 +6,7 @@ from token_stream import TokenStream
 from token_parser import parse
 from generate_py import make_py
 
-
+# TODO: ADD MORE TESTS OOO! TEST OTHER CONSTRUCTS!
 class TestGeneratePy(unittest.TestCase):
     def test_binary_ops_1(self):
         """ test the binary ops bro """
@@ -19,7 +19,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """age = 20;age > 10;"""
+        expected = """age = 20;\nage > 10"""
 
         actual = make_py(ast)
 
@@ -36,7 +36,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """bola_age = 20;tolu_age = 30 - 10;"""
+        expected = """bola_age = 20;\ntolu_age = 30 - 10"""
 
         actual = make_py(ast)
 
