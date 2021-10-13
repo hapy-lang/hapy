@@ -1,5 +1,6 @@
 """
 I'm thinking of gathering all the things into one function...
+LOL Not very good idea. 
 """
 from input_stream import InputStream
 from token_stream import TokenStream
@@ -41,6 +42,7 @@ if __name__ == '__main__':
          numbers is [1,2,3];
          for (num in numbers) {
             print("Num => ",num);
+            d={1:23};
         };
     """
 

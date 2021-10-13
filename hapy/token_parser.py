@@ -25,8 +25,9 @@ def parse(input: TokenStream):
     PRECEDENCE = {
         "=": 1,
         "is": 1,
-        "in": 1, # not 100% sure why this has 1 precedence :p
+        "in": 1,  # not 100% sure why this has 1 precedence :p
         ".": 1,
+        ":": 1,
         "or": 2,
         "and": 3,
         "<": 7,
@@ -35,6 +36,7 @@ def parse(input: TokenStream):
         ">=": 7,
         "==": 7,
         "!=": 7,
+        "not": 7,
         "+": 10,
         "-": 10,
         "plus": 10,
@@ -45,8 +47,16 @@ def parse(input: TokenStream):
         "times": 20,
         "dividedby": 20
     }
+    expecting_non_dict_block = False
 
     # the program first level! thank you Jesus!
+
+    def block_kw(operation: str):
+        nonlocal expecting_non_dict_block
+        if operation.lower() == "get":
+            return expecting_non_dict_block
+        elif operation.lower() == "set":
+            expecting_non_dict_block = True
 
     def is_punc(ch):
         tok = input.peek()
@@ -92,16 +102,15 @@ def parse(input: TokenStream):
         input.croak(msg % json.dumps(input.peek()))
 
     def maybe_binary(left, my_prec):
-        tok = is_op(None) # thank you Jesus :]
+        tok = is_op(None)  # thank you Jesus :]
         # tbh, I'm not 100% sure what's going on here, but I'll find out!
-
         binary_type = {  # noqa: F841
             "is": "assign",
             "=": "assign",
             ".": "access",
-            "in": "membership"
+            "in": "membership",
+            ":": "dict-elem"  # Wuta added this line.
         }
-
         if tok:
             their_prec = PRECEDENCE[tok["value"]]
             if their_prec > my_prec:
@@ -111,9 +120,9 @@ def parse(input: TokenStream):
                         "type": binary_type.get(tok["value"], "binary"),
                         "operator":
                         tok["value"],
-                        "left":
+                        "left" if tok["value"] != ":" else "key":
                         left,
-                        "right":
+                        "right" if tok["value"] != ":" else "value":
                         maybe_binary(parse_atom(), their_prec)
                     }, my_prec
                 )  # made a mistake here initially, put their_prec instead :|
@@ -152,6 +161,13 @@ def parse(input: TokenStream):
         return {"type": "var", "value": name["value"]}
 
     def parse_if():
+        '''Thank you Jesus!!!
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
+
+        Lean khan I have done it!!!!!
+        '''
+        block_kw("set")
         skip_kw("if")
         cond = parse_expression()
         # if (!is_punc("{")) skip_kw("then"); REASON: no then in python :]
@@ -159,6 +175,7 @@ def parse(input: TokenStream):
         then = parse_expression()
         ret = {"type": "if", "cond": cond, "then": then}
         if is_kw("else"):
+            block_kw("set")
             input.next()
             ret["else"] = parse_expression()
 
@@ -171,6 +188,14 @@ def parse(input: TokenStream):
 
     def parse_while():
         """ this is literally the same as parse_if but I keep seperate just in case """
+
+        '''Thank you Jesus!!!
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
+        
+        Lean khan I have done it!!!!!
+        '''
+        block_kw("set")
 
         skip_kw("while")
 
@@ -189,10 +214,17 @@ def parse(input: TokenStream):
 
     def parse_forloop():
         """ read a for-loop expression """
+        '''Thank you Jesus!!!
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
+        
+        Lean khan I have done it!!!!!
+        '''
+        block_kw("set")
 
         skip_kw("for")
 
-        header = parse_expression() # the iterator...
+        header = parse_expression()  # the iterator...
 
         body = parse_expression()
 
@@ -205,10 +237,17 @@ def parse(input: TokenStream):
         return ret
 
     def parse_function():
+        '''Thank you Jesus!!!
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
+
+        Lean khan I have done it!!!!!
+        '''
+        block_kw("set")
         return {
             "type": "function",
-            "name": parse_varname(
-            ),  # get variable name, that should be the next thing! Thank you Jesus
+            # get variable name, that should be the next thing! Thank you Jesus
+            "name": parse_varname(),
             # we are using parse_expression because the args could actually
             # be expressions like assingment def foo(b=1) {...}
             "vars": delimited("(", ")", ",", parse_expression),
@@ -229,10 +268,9 @@ def parse(input: TokenStream):
         skip_kw("import")
 
         return {
-        "type": "import",
-        "module": parse_modulename()
+            "type": "import",
+            "module": parse_modulename()
         }
-
 
     def parse_bool():
         return {"type": "bool", "value": input.next()["value"] == "True"}
@@ -251,7 +289,18 @@ def parse(input: TokenStream):
                 skip_punc(")")
                 return exp
             if is_punc("{"):
-                return parse_prog()
+                if block_kw("get"):
+                    return parse_prog()
+                return parse_dict()
+            if is_kw("dict"):
+                print("IS_KW('dict')------>: ", input.peek())
+                input.next()
+                print("\n\nAfter input.next------>: ", input.peek())
+                skip_punc("(")
+                print("\n\nAfter skip_punc------>: ", input.peek())
+                exp = parse_dict()
+                skip_punc(")")
+                return exp
             # parse lists here...
             if is_punc("["):
                 return parse_list()
@@ -286,7 +335,13 @@ def parse(input: TokenStream):
         elems = delimited("[", "]", ",", parse_atom)
         return {"type": "list", "elements": elems}
 
+    def parse_dict():
+        elem = delimited("{", "}", ",", parse_expression)
+        return {"type": "dict", "content": elem}
+
     def parse_prog():
+        nonlocal expecting_non_dict_block
+        expecting_non_dict_block = False
         # TODO: I need to work on this for Python! Thank you Jesus!
         prog = delimited("{", "}", ";", parse_expression)
         if len(prog) == 0:
@@ -329,12 +384,26 @@ if __name__ == "__main__":
     #               print('Smaller!');
     #           };
     #       """
-    code = """
-        def hello(name){
-           print('Hello %s' % name)
-        };
+    # code = """name=45;
+    #     def hello(name){
+    #        print('Hello %s', 67)# % name)
+    #     };
 
-        hello();
+    #     hello();
+    # """
+    code = """{key1 : 4, 3:9, 0:['34', 5, False]}; 
+    #var = 45;
+    for (True) {
+      print("helloworld");
+      {key1 : 4, 3:9, 0:['34', 5, False]};
+            if (True){
+                dict({});
+            }else {
+                    print('Smaller!');
+            };
+    };
+    {key1 : 4, 3:9, 0:['34', 5, False]};
+    dict({1:1});
     """
     inputs = InputStream(code)
     tokens = TokenStream(inputs)

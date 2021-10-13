@@ -12,6 +12,8 @@ if __name__ == "__main__":
             };
 
             hello(age=20.3, year=1999);
+            dict = {1:2};
+            print(dict);
          """
 
     run(transpile(code))
