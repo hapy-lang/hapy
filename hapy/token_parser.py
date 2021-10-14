@@ -3,8 +3,8 @@ parser
 from: https://lisperator.net/pltut/parser/the-parser
 """
 import json
-from token_stream import TokenStream
-from input_stream import InputStream
+from .token_stream import TokenStream
+from .input_stream import InputStream
 
 FALSE = {"type": "bool", "value": False}
 PASS = {"type": "var", "value": "pass"}
@@ -88,7 +88,7 @@ def parse(input: TokenStream):
         if is_op(op):
             input.next()
         else:
-            input.croak(f"Expecting punctuation got: \"{op}\"")
+            input.croak(f"Expecting operator got: \"{op}\"")
 
     def unexpected(msg="unexpected token: %s "):
         input.croak(msg % json.dumps(input.peek()))
@@ -295,7 +295,7 @@ def parse(input: TokenStream):
     def parse_modulename():
         name = input.next()
         if name["type"] != "var":
-            input.croak("Expecting variable name")
+            input.croak("Expecting module name")
         return {"type": "module", "value": name["value"]}
 
     def parse_import():
@@ -442,28 +442,16 @@ def parse(input: TokenStream):
 
 
 if __name__ == "__main__":
-    # code = """
-    #           if (20 > 10) {
-    #               print('Greater!');
-    #           if (True) {
-    #           print('bbs')
-    # }
-    #           } else {
-    #               print('Smaller!');
-    #           };
-    #       """
     code = """
-       class Cow inherits Animal {
-        has name;
-        has color = "green";
+            if (self.gender != "Female") {
+            print("Woops! Cant do that! :)");
 
-        use Animal(name, name);
-
-        def when_created() {
-            print('Hi! Thank you Jesus!');
-        }
-       }
-    """
+            return False;
+        };
+        """
+    # code = """
+    #    cond = self.done != True;
+    # """
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)

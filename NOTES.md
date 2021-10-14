@@ -47,7 +47,7 @@ FOR ( var in collection ) {
 
 ### THIS SHOULD BE PART OF A CHANGELOG!
 
-`parse_varname` now returns `var` tokens :) instead of plain strings. Adjust accordingly :p
+- `parse_varname` now returns `var` tokens :) instead of plain strings. Adjust accordingly :p
 
 <!-- PYTHON SUBLIME TEXT SETTINGS
 {
@@ -60,6 +60,24 @@ FOR ( var in collection ) {
 	"trim_trailing_white_space_on_save": true,
 }
 -->
+
+- To run a single file (module) in the hapy package, do `python -m hapy.{{name of module}}`. This prevents
+all those 'relative import/no parent package' errors.
+
+## KNOWN ISSUES
+
+```any
+    if (self.gender != "Female") {
+            print("Woops! Can't do that! :)");
+
+            return;
+        };
+```
+This code fails to transpile in Hapy!
+1. The "'" in Can't causes `delimeter({, }, ,)` to fail
+2. The single `return` also fails
+
+We just need to handle those situations!
 
 ## dots
 something like this "'hello friend'.uppercase()" should have these tokens:

@@ -1,6 +1,9 @@
-from exector import run, run2
-from transpiler import transpile
+from .exector import run, run2
+from .transpiler import transpile
 import math
+
+def do(code: str):
+   run2(transpile(code))
 
 if __name__ == "__main__":
    # Just testing das'all...

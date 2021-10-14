@@ -1,14 +1,27 @@
-import sys
+import sys, os
 import code as _code
 import glob  # noqa: E401, F401
 from importlib import util  # noqa: E401
 
 # NOTE: these are just test hapy builtins lol
 # but this is how we will define them...
+# get current path of file
+fullpath = os.path.realpath(__file__)
+HAPY_PATH = os.path.dirname(fullpath)
+# TODO: add a short description and other info to these modules...
 hapy_modules = {
-    "test": "modules/test_module.py",
-    "popo": "modules/popo_module.py"
+    "test": f"{HAPY_PATH}/modules/test_module.py",
+    "popo": f"{HAPY_PATH}/modules/popo_module.py"
     }
+
+def all_local_modules():
+    """
+    Returns the names of all local hapy modules in the current directory.
+    NOTE: Hapy does not currently support packages and all that bull...
+    """
+    all_hapyfiles = list(map(lambda x: x.rstrip('.hapy'), glob.glob("*.hapy")))
+
+    return all_hapyfiles
 
 def is_local_module(mod_name: str):
     """
@@ -103,7 +116,7 @@ def get(module_name: str, is_local: bool = False) -> str:
             import_result = (True, 1, make_module2(code, module_name))
 
     elif is_local_module(module_name):
-        from transpiler import transpile
+        from hapy.transpiler import transpile
         # transpile local module and all...
         # TODO: we are assuming the file exists! WRONG!
         module_file = module_name + ".hapy"

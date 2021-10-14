@@ -6,12 +6,7 @@ THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
 """
 
 import json
-from token_stream import TokenStream
-from input_stream import InputStream
-
-from token_parser import parse
-from exector import run
-from importer import get
+from .importer import get
 """ NOTE: Let all blocks be like this:
     if [COND] {\n
         [EXPRESSION]
@@ -377,27 +372,4 @@ def make_py(token, local: bool = False):
 
 
 if __name__ == "__main__":
-
-    code = """
-       class Person inherits Goat {
-            has name;
-            has age = 22;
-
-            use Goat(name);
-
-            def when_created() {
-                print('1')
-            };
-
-            def jump(fish,u,e,s) {
-                self.name * 2;
-            };
-       }
-    """
-    # code = "age is (1 plus 1); name is 'emma';print(age)"
-    inputs = InputStream(code)
-    tokens = TokenStream(inputs)
-    ast = parse(tokens)
-    python_code = make_py(ast)
-
-    print(python_code)
+    print('Generate Python!')
