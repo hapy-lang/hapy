@@ -1,6 +1,8 @@
 """
 generate the python code from AST tree
 AST -> Abstract Syntax Tree... thank you Jesus!
+
+THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
 """
 
 import json
@@ -10,6 +12,12 @@ from input_stream import InputStream
 from token_parser import parse
 from exector import run
 from importer import get
+""" NOTE: Let all blocks be like this:
+    if [COND] {\n
+        [EXPRESSION]
+    \n}
+    Asin, the curly braces should be at the end of everyline
+"""
 
 word_ops = {
     "and": "and",
@@ -33,6 +41,25 @@ def handle_operators(op: str) -> str:
     else:
         return op
 
+def is_in_parents_props(prop_name: str, parent_props) -> bool:
+    """For every prop in parent check if that prop is same as the passed prop
+        if so, stop searching and return found
+    """
+    found = False
+    i = 0
+
+    if len(parent_props) <= 0:
+        return found
+
+    while not found and i < len(parent_props):
+        p = parent_props[i]
+        if p.get("value", None) == prop_name or p.get("left", None) == prop_name:
+            found = True
+        i += 1
+
+    return found
+
+
 
 def make_py(token, local: bool = False):
     """local is if this file is a local file"""
@@ -49,13 +76,17 @@ def make_py(token, local: bool = False):
             "access": py_access,
             "function": py_function,
             "import": py_import,
+            "return": py_return,
             "if": py_if,
             "list": py_list,
             "dict": py_dict,
             "while": py_while,
             "for": py_forloop,
             "call": py_call,
-            "prog": py_prog
+            "prog": py_prog,
+            # class stuff
+            "class": py_class,
+            "class_property": py_class_prop
         }
 
         doer = switch.get(token["type"], None)
@@ -80,32 +111,57 @@ def make_py(token, local: bool = False):
 
         return tok["value"]
 
-    def py_binary(tok):
-        """return a binary statement"""
-
-        # this is because we make '.' a binary operator :)
-        # and we are using this different notation cuz I don't want space
-        # between the operands... 'foo.bar' over 'foo . bar'
-
-        if tok["operator"] == ".":
+    def py_class_prop(tok):
+        """return a plain variable value"""
+        if "default_value" in tok:
             return "{left}{op}{right}".format(
                 **{
-                    "left": pythonise(tok["left"]),
-                    "op": handle_operators(tok["operator"]),
-                    "right": pythonise(tok["right"])
+                    "left": pythonise(tok["value"]),
+                    "op": "=",
+                    "right": pythonise(tok["default_value"])
                 })
-        elif tok["operator"] == ":":
-            return "{key}{op} {value}".format(**{"key": pythonise(tok["key"]),
-                                                 "op": handle_operators(tok["operator"]),
-                                                 "value": pythonise(tok["value"])}
-                                              )
-        else:
-            return "{left} {op} {right}".format(
-                **{
-                    "left": pythonise(tok["left"]),
-                    "op": handle_operators(tok["operator"]),
-                    "right": pythonise(tok["right"])
-                })
+
+        return tok["value"]
+
+    def py_binary(tok):
+        """return a binary statement"""
+        """ this is because we make '.' a binary operator :)
+                        and we are using this different notation cuz I don't want space
+                        between the operands... 'foo.bar' over 'foo . bar'
+        """
+        
+        # give space between operands by default
+        s1 = s2 = " "
+
+        # to access the keys for the operands on each side
+        left_key, right_key = "left", "right"
+
+        if tok["operator"] == ".":
+            s1 = s2 = ""
+
+        if tok["operator"] == ":":
+            left_key, right_key = "key", "value"
+            # no space after the 'key' => {"key": value}
+            s1 = ""
+
+        # if tok["operator"] == ".":
+
+        #     return "{left}{op}{right}".format(
+        #         **{
+        #             "left": pythonise(tok["left"]),
+        #             "op": handle_operators(tok["operator"]),
+        #             "right": pythonise(tok["right"])
+        #         })
+        # else:
+        """if this is a regular binary operator, then give space!"""
+        return "{left}{s1}{op}{s2}{right}".format(
+            **{
+                "left": pythonise(tok[left_key]),
+                "op": handle_operators(tok["operator"]),
+                "right": pythonise(tok[right_key]),
+                "s1": s1,
+                "s2": s2
+            })
 
     def py_assign(tok):
         """return an assign function"""
@@ -116,16 +172,28 @@ def make_py(token, local: bool = False):
         """return dot access statement: foo.bar """
         return py_binary(tok)
 
-    def py_function(tok):
+    def py_function(tok, class_method=False, custom_name=None):
         """return a Python function definition"""
 
-        args = " ({args})".format(**{
-            "args":
-            ", ".join(list(map(lambda x: pythonise(x), tok["vars"])))
-        })
+        function_name = pythonise(
+            tok["name"]) if not custom_name else custom_name
 
-        o = "def " + pythonise(tok["name"]) + args + "{\n"\
-            + pythonise(tok["body"]) + "\n}"
+        args = ""
+
+        if class_method:
+            sep = "," if len(tok["vars"]) > 0 else ""
+            args = " (self" + sep + "{args})".format(**{
+                "args":
+                ", ".join(list(map(lambda x: pythonise(x), tok["vars"])))
+            })
+        else:
+            args = " ({args})".format(**{
+                "args":
+                ", ".join(list(map(lambda x: pythonise(x), tok["vars"])))
+            })
+
+        o = "def " + function_name + args + "{\n"\
+        + pythonise(tok["body"]) + "\n}"
 
         return o
 
@@ -153,7 +221,8 @@ def make_py(token, local: bool = False):
     """
 
     def py_if(tok):
-        """Python if statements"""
+        """creates a Python if statement"""
+        # TODO: support elif...
 
         o = "if (" + pythonise(tok["cond"]) + ") {\n"
         + pythonise(tok["then"]) + "\n}" + ("\nelse {\n" + pythonise(tok["else"]) +
@@ -170,7 +239,7 @@ def make_py(token, local: bool = False):
         return o
 
     def py_forloop(tok):
-        """forloop, returns python while loop!"""
+        """forloop, returns python for loop!"""
 
         o = "for " + pythonise(tok["header"]) + " {\n"
         + pythonise(tok["body"]) + "\n}"
@@ -183,6 +252,116 @@ def make_py(token, local: bool = False):
             "args":
             ", ".join(list(map(lambda x: pythonise(x), tok["args"])))
         })
+
+    def py_class(tok):
+        """generate python class"""
+
+        # Make the 'class header' i.e class ClassName(ParentClass):
+        class_header = "class " + pythonise(tok["name"]) + ("(%s) {\n" % tok["inherits"]["value"] if \
+        "inherits" in tok else " {\n")
+
+        # Add __init__ method and other special methods, if available
+        init = ""
+
+        for t in tok["class_special_methods"]:
+            # for each special method
+            if t["name"]["value"] == "when_created":
+                init += py_class_init(tok, t)
+                # the __str__ method
+            elif t["name"]["value"] == "when_string":
+                init += py_function(
+                    t, class_method=True, custom_name='__str__') + ";\n"
+            elif t["name"]["value"] == "when_printed":
+                # the __repr__ method
+
+                # TODO: might remove this since its sometimes redundant???
+                init += py_function(
+                    t, class_method=True, custom_name='__repr__') + ";\n"
+            else:
+                # if we don't recognize the special method...
+                init += "#invalid special method\n"
+
+        # Add Class Methods, if any.
+        methods = ""
+        if "class_methods" in tok:
+            methods = ";\n".join(
+                list(
+                    map(lambda x: py_function(x, class_method=True),
+                        tok["class_methods"])))
+
+        # Add body expressions, if any. Usually this is None
+        class_body = ""
+        if "body" in tok:
+            class_body = "pass"
+
+        # Add everything together, plus close with } :p
+        o = class_header + init + methods + class_body + "\n}"
+
+        return o
+
+    def py_class_init(tok, init_token):
+        """return __init__ definition"""
+
+        # Make the __init__ function header with arguments, if any
+        # i.e def __init__(self, {args}){\n
+
+        # find similar stuff...
+
+        init_header = "def __init__(self, {args})".format(
+            **{
+                "args":
+                ", ".join(
+                    list(map(lambda x: pythonise(x), tok["class_properties"])))
+            }) + " {\n"
+
+        init_body = ""
+
+        # if this class inherits another, add the super() statement...
+        if "inherits" in tok:
+            args = ""
+
+            # TODO (!!!!): prevent duplicating attributes that were sent to Parent in
+            # the _init_ also!
+
+            if "init_parent" in tok and tok["init_parent"].get("args", None):
+                args = ", ".join(
+                    list(
+                        map(lambda x: pythonise(x),
+                            tok["init_parent"]["args"])))
+
+            init_body += "super().__init__({});\n".format(args)
+
+        # if there are class properties, add the initializations here...
+        if len(tok["class_properties"]) > 0:
+
+            # add 'self.abc = abc' to init
+            for p in tok["class_properties"]:
+                # if it has a default value, make that property
+                # equal to the default value...
+                if p["type"] == "var" and not is_in_parents_props(p["value"], tok.get("init_parent", {}).get("args", [])):
+                    # only do this if the prop_name is not in init_class props
+
+                    init_body += "self.{prop_name} = {prop_name}".format(
+                        **{"prop_name": p["value"]}) + ";\n"
+                elif p["type"] == "assign" and not is_in_parents_props(p["left"]["value"], tok.get("init_parent", {}).get("args", [])):
+                    # it means, the var is in assign!
+                    init_body += "self.{prop_name} = {prop_name}".format(
+                        **{"prop_name": p["left"]["value"]}) + ";\n"
+
+        # the expressions inside the __init__ body
+        if init_token.get("body", None):
+            init_body += "\n" + pythonise(init_token["body"]) + ";\n"
+
+        # add everything together
+        o = "\n" + init_header + init_body + "}\n"
+
+        return o
+
+    def py_return(tok):
+        # return a return statement...
+        o = "return " + pythonise(tok["expression"])
+
+        return o
 
     def py_import(tok):
         """paste import statement in code
@@ -237,11 +416,16 @@ if __name__ == "__main__":
     #         print(test.func1());
     #         print(something.do_something)
     #         """
-    code = "age is (1 plus 1); name is 'emma';print(age);name is {f:true, 2:    { 45:45}}"
+    code = """class Cow {
+        has name = {};
+
+       def when_created() {
+
+        };
+    };"""
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)
     python_code = make_py(ast)
 
     print(python_code)
-    # run(python_code)

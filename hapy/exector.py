@@ -14,8 +14,10 @@ codeErr = StringIO()
 # I'm not sure if we need this still. I know sha that we need a way
 # to set the exec know what module is running...
 def run2(source: str, file=False):
-    interpreter = _code.InteractiveInterpreter()
-    interpreter.runsource(source, '<main>', 'exec')
+    lcls = {"sys": sys, "__name__": "__main__"}
+    interpreter = _code.InteractiveInterpreter(locals=lcls)
+    # here, we are saying this guy come's from the main_string
+    interpreter.runsource(source, '<main_string>', 'exec')
 
 
 def run(code: str):

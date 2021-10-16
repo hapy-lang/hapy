@@ -18,6 +18,11 @@ keywords = {
     "while": "while",
     "for": "for",
     "import": "import",
+    "class": "class",
+    "has": "has",
+    "inherits": "inherits",
+    "use": "use",
+    "pass": "pass",
     "from": "from",
     "else": "else",
     "in": "in",
@@ -108,7 +113,7 @@ class TokenStream(InputStream):
     def is_punc(self, ch: str) -> bool:
         """return True iff is punctuation character"""
 
-        return ch in ",;()*{}[]"  # Wuta made changes here.
+        return ch in ",;(){}[]"  # Wuta made changes here.
 
     def is_whitespace(self, ch: str) -> bool:
         """check if ch is whitespace character"""

@@ -7,6 +7,7 @@ from token_stream import TokenStream
 from input_stream import InputStream
 
 FALSE = {"type": "bool", "value": False}
+PASS = {"type": "var", "value": "pass"}
 
 
 def any_fulfill(collection, condition):
@@ -28,6 +29,7 @@ def parse(input: TokenStream):
         "in": 1,  # not 100% sure why this has 1 precedence :p
         ".": 1,
         ":": 1,
+        "=": 1,  # not 100% sure why this has 1 precedence :p
         "or": 2,
         "and": 3,
         "<": 7,
@@ -45,7 +47,11 @@ def parse(input: TokenStream):
         "/": 20,
         "%": 20,
         "times": 20,
-        "dividedby": 20
+        "dividedby": 20,
+        # because self.name is one of the strongest bonds
+        "is": 20,
+        "in": 20,
+        ".": 30,
     }
     expecting_non_dict_block = False
 
@@ -115,6 +121,7 @@ def parse(input: TokenStream):
             their_prec = PRECEDENCE[tok["value"]]
             if their_prec > my_prec:
                 input.next()
+
                 return maybe_binary(
                     {
                         "type": binary_type.get(tok["value"], "binary"),
@@ -228,15 +235,13 @@ def parse(input: TokenStream):
 
         body = parse_expression()
 
-        ret = {
-            "type": "for",
-            "header": header,
-            "body": body
-        }
+        ret = {"type": "for", "header": header, "body": body}
 
         return ret
 
     def parse_function():
+        # skip the 'def' keyword!
+
         '''Thank you Jesus!!!
         Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
         So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
@@ -244,15 +249,95 @@ def parse(input: TokenStream):
         Lean khan I have done it!!!!!
         '''
         block_kw("set")
-        return {
-            "type": "function",
+
+        skip_kw("def")
+
+        function_name = parse_varname()
+
+        ret = {"name": function_name}
+
+        if function_name["value"].startswith("when_"):
+            # meaning this is a class special method
+            # like __init__ in python...
+            ret["type"] = "class_special_method"
+        else:
+            ret["type"] = "function"
+
+        ret = {
             # get variable name, that should be the next thing! Thank you Jesus
-            "name": parse_varname(),
             # we are using parse_expression because the args could actually
             # be expressions like assingment def foo(b=1) {...}
+            **ret,
             "vars": delimited("(", ")", ",", parse_expression),
             "body": parse_expression()
         }
+
+        return ret
+
+    def parse_class():
+        """
+        read a class definition.
+        1. Look for the classname
+        2. Check if there is an inherited class. Only get the first one!
+        3. Look for instance methods.
+        4. Look for instance properties.
+        5. Look for special class methods... constructor, etc...
+        5. Collect all and send back dict...
+
+        thank you Jesus!
+        """
+        # skip 'class' first! Thank you Jesus!
+
+        skip_kw("class")
+
+        # next, get the class name
+        classname = parse_varname()
+
+        ret = {"type": "class", "name": classname}
+
+        # if the next token is 'inherits' then get parent class name!...
+        # thank you Jesus!
+        if is_kw("inherits"):
+            skip_kw("inherits")
+            # get parent class name...
+            parent_classname = parse_varname()
+            ret["inherits"] = parent_classname
+        # then get the class body expressions...
+
+        expressions = delimited("{", "}", ";", parse_expression)
+
+        # check if there are no expressions. If so, just return pass
+        if len(expressions) == 0:
+            # just for things that are not class stuff...
+            ret["body"] = {"type": "var", "value": "pass"}
+
+        ret["class_properties"] = []
+        ret["class_special_methods"] = []
+        ret["class_methods"] = []
+
+        # now find all attributes, class_functions and methods
+        for e in expressions:
+            """
+            for every expression,
+            1. if type == 'class_property' put in properties array
+            2. if type == 'class_special_method' put in class special functions array
+            3. if type == 'function' put in class methods array
+            """
+            if e["type"] == "var" or e["type"] == "assign":
+                ret["class_properties"].append(e)
+            elif e["type"] == "class_special_method":
+                ret["class_special_methods"].append(e)
+            elif e["type"] == "function":
+                ret["class_methods"].append(e)
+            # this is to initialize the parent class
+            elif e["type"] == "use_class":
+                ret["init_parent"] = e
+                # make sure classes are the same!
+                if ret["init_parent"]["func"]["value"] != ret["inherits"][
+                        "value"]:
+                    input.croak("Parent class not initialized!")
+
+        return ret
 
     def parse_modulename():
         name = input.next()
@@ -267,10 +352,49 @@ def parse(input: TokenStream):
         """
         skip_kw("import")
 
-        return {
-            "type": "import",
-            "module": parse_modulename()
-        }
+        return {"type": "import", "module": parse_modulename()}
+
+    def parse_return():
+        """
+        should see an import statement and get the name of the imported
+        module and return it. That's all for now...
+        """
+        skip_kw("return")
+
+        return {"type": "return", "expression": parse_expression()}
+
+    def parse_class_use():
+        """returns the attributes that this class uses"""
+
+        skip_kw("use")
+
+        d = parse_atom()
+
+        d["type"] = "use_class"
+
+        return d
+
+    def parse_classprop():
+        """
+        reads 'has prop_name'
+        """
+        skip_kw("has")
+
+        ret = {"type": "class_property"}
+
+        # get the name or expression...
+        p = maybe_binary(parse_atom(), 0)
+
+        # if its somn like 'has age = 1'
+        if p["type"] == "assign":
+            # ret["value"] = p["left"]["value"]
+            # ret["default_value"] = p["right"]["value"]
+            ret = {**ret, **p}
+        elif p["type"] == "var":
+            ret = {**ret, **p}
+        # TODO: maybe throw an error here...
+
+        return p
 
     def parse_bool():
         return {"type": "bool", "value": input.next()["value"] == "True"}
@@ -293,11 +417,8 @@ def parse(input: TokenStream):
                     return parse_prog()
                 return parse_dict()
             if is_kw("dict"):
-                print("IS_KW('dict')------>: ", input.peek())
                 input.next()
-                print("\n\nAfter input.next------>: ", input.peek())
                 skip_punc("(")
-                print("\n\nAfter skip_punc------>: ", input.peek())
                 exp = parse_dict()
                 skip_punc(")")
                 return exp
@@ -310,12 +431,19 @@ def parse(input: TokenStream):
                 return parse_while()
             if is_kw("for"):
                 return parse_forloop()
+            if is_kw("class"):
+                return parse_class()
             if is_kw("import"):
                 return parse_import()
+            if is_kw("return"):
+                return parse_return()
+            if is_kw("has"):
+                return parse_classprop()
+            if is_kw("use"):
+                return parse_class_use()
             if is_kw("True") or is_kw("False"):
                 return parse_bool()
             if is_kw("def"):
-                input.next()
                 return parse_function()
 
             # NOTE: If you don't handle tokens they will raise an error
@@ -345,7 +473,8 @@ def parse(input: TokenStream):
         # TODO: I need to work on this for Python! Thank you Jesus!
         prog = delimited("{", "}", ";", parse_expression)
         if len(prog) == 0:
-            return FALSE
+            # return FALSE # TODO: maybe just return pass;
+            return PASS
         if len(prog) == 1:
             return prog[0]
         return {"type": "prog", "prog": prog}

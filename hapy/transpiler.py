@@ -39,11 +39,50 @@ if __name__ == '__main__':
     #  };
     #          """
     code = """
-         numbers is [1,2,3];
-         for (num in numbers) {
-            print("Num => ",num);
-            d={1:23};
-        };
+    class Rectangle {
+    has length;
+    has width;
+
+    def when_created() {};
+
+    def area() {
+        return self.length * self.width;
+    };
+
+    def perimeter() {
+        return 2 * self.length + 2 * self.width;
+    };
+
+};
+
+class Square inherits Rectangle {
+    has length;
+
+    use Rectangle(length, length);
+
+    def when_created() {};
+};
+
+sq = Square(4);
+
+print(sq.area());
+
+class Cube inherits Square {
+
+    def surface_area() {
+        face_area = super().area();
+        return face_area * 6;
+    };
+
+    def volume() {
+        face_area = super().area();
+        return face_area * self.length;
+    };
+};
+
+c = {"class": Cube(3)};
+
+print(c.get("class"));
     """
 
     run(transpile(code, no_indent=False))

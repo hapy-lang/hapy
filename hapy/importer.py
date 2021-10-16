@@ -1,4 +1,5 @@
 import sys
+import code as _code
 import glob  # noqa: E401, F401
 from importlib import util  # noqa: E401
 
@@ -18,6 +19,34 @@ def is_local_module(mod_name: str):
     all_hapyfiles = list(map(lambda x: x.rstrip('.hapy'), glob.glob("*.hapy")))
 
     return mod_name in all_hapyfiles
+
+def make_module2(code: str, module_name: str):
+
+    # NOTE: ERRORS IN MODULES DON'T MAKE THE PROGRAM TO FAIL!
+
+    my_spec = util.spec_from_loader(module_name, loader=None)
+    my_module = util.module_from_spec(my_spec)
+
+    """
+    THANK YOU JESUS! THIS THING SAVED THIS CODE!
+
+    the challenge: adding sys to globals :/
+    """
+    my_module.__dict__["sys"] = sys
+
+    # exec(code, my_module.__dict__)
+
+    sys.modules[module_name] = my_module
+
+    # lcls = {"sys": sys, "__name__": "__main__"}
+
+    interpreter = _code.InteractiveInterpreter(locals=my_module.__dict__)
+
+    # here, we are saying this guy come's from the main_string
+    interpreter.runsource(code, '<the module file path>', 'exec')
+
+    return """# --- import ---\n{m} = sys.modules["{m}"];\n# --- import ---"""\
+        .format(** {"m": module_name})
 
 def make_module(code: str, module_name: str):
     """
@@ -71,7 +100,7 @@ def get(module_name: str, is_local: bool = False) -> str:
             # format for import_result => (status: bool, type: [1,2,3,4],
             # result: import_string | module_name)
 
-            import_result = (True, 1, make_module(code, module_name))
+            import_result = (True, 1, make_module2(code, module_name))
 
     elif is_local_module(module_name):
         from transpiler import transpile
@@ -84,7 +113,7 @@ def get(module_name: str, is_local: bool = False) -> str:
             # now we have to transpile this code to python!
             pyc = transpile(code, local=True)
 
-            import_result = (True, 2, make_module(pyc, module_name))
+            import_result = (True, 2, make_module2(pyc, module_name))
     elif module_name.startswith("py_"):
         # if the module name starts with this, its a python module
         # just remove the py_ and import normally, else it's an error!
