@@ -31,7 +31,8 @@ keywords = {
     "def": "def",
     "list": "list",
     "True": "True",
-    "False": "False"
+    "False": "False",
+    "dict": "dict"
 }
 
 operator_words = {
@@ -51,9 +52,10 @@ operator_words = {
 }
 
 operators = [">", "<", "==", "!=", ">=", "<=", "-", "+", "/", "*", "**", "//",
-"%", ".", "="]
+             "%", ".", "=", ":"]  # Wuta Added ":" for Dictionary
 
 # TODO: consider why '//' exists
+
 
 class TokenStream(InputStream):
     def __init__(self, _input: InputStream):
@@ -95,7 +97,7 @@ class TokenStream(InputStream):
     def is_op_char(self, ch: str) -> bool:
         """return True iff operational characterer"""
 
-        return ch in "+-*/%=<>!&|."
+        return ch in "+-*/%=<>!&.:"  # Wuta added ":" for dictionary
 
     def read_op(self):
         """ read operator """
@@ -111,7 +113,7 @@ class TokenStream(InputStream):
     def is_punc(self, ch: str) -> bool:
         """return True iff is punctuation character"""
 
-        return ch in ":,;(){}[]"
+        return ch in ",;(){}[]"  # Wuta made changes here.
 
     def is_whitespace(self, ch: str) -> bool:
         """check if ch is whitespace character"""
@@ -135,7 +137,8 @@ class TokenStream(InputStream):
         def function(c: str):
             if c == ".":
                 nonlocal has_dot
-                if has_dot: return False
+                if has_dot:
+                    return False
                 has_dot = True
                 return True
             return self.is_digit(c)
@@ -239,7 +242,6 @@ class TokenStream(InputStream):
 
     def eof(self):
         """check if end of file"""
-        
         return self.peek() == "" or self.peek() is None
 
     def croak(self, msg: str):

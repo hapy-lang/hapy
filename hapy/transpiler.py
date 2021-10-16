@@ -1,5 +1,6 @@
 """
 I'm thinking of gathering all the things into one function...
+LOL Not very good idea. 
 """
 from input_stream import InputStream
 from token_stream import TokenStream
@@ -79,9 +80,9 @@ class Cube inherits Square {
     };
 };
 
-c = Cube(3);
+c = {"class": Cube(3)};
 
-print(c.surface_area());
+print(c.get("class"));
     """
 
-    print(transpile(code, no_indent=False))
+    run(transpile(code, no_indent=False))
