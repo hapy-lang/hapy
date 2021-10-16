@@ -6,12 +6,15 @@ Take a string of code and for each newline, check if it's the beginning of a blo
 
 indent function taken from Bython package https://github.com/mathialo/bython
 """
+
+
+
+
 import re
-
-
 def indent(code: str) -> str:
     indentation_level = 0
-    indentation_sign = "    "
+    SPACE = " "
+    indentation_sign = SPACE * 4
 
     # Read file to string
     infile_str_raw = ""
@@ -80,8 +83,13 @@ def indent(code: str) -> str:
         infile_str_indented += line + add_comment + "\n"
 
     # Support for extra, non-brace related stuff
+
     infile_str_indented = re.sub(r"else\s+if", "elif", infile_str_indented)
     infile_str_indented = re.sub(r";\n", "\n", infile_str_indented)
+
+    """The re.sub() below changes the <<<| used for dictionary by the generate_py to introduce "{}" for dictionary data structure"""
+    infile_str_indented = re.sub(r"<<<\|", "{", infile_str_indented)
+    infile_str_indented = re.sub(r"\|>>>", "}", infile_str_indented)
 
     # # Change imported names if necessary
     # if change_imports is not None:

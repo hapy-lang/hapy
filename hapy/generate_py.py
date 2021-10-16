@@ -18,6 +18,7 @@ word_ops = {
     "and": "and",
     "or": "or",
     "is": "=",
+    "not": "!=",
     "in": "in",
     "plus": "+",
     "minus": "-",
@@ -73,6 +74,7 @@ def make_py(token, local: bool = False):
             "return": py_return,
             "if": py_if,
             "list": py_list,
+            "dict": py_dict,
             "while": py_while,
             "for": py_forloop,
             "call": py_call,
@@ -91,7 +93,7 @@ def make_py(token, local: bool = False):
 
     # helper functions
     def py_atom(tok):
-        """reurn the value of a token"""
+        """return the value of a token"""
 
         # if its a boolean, don't stringify the value, return it
         # raw
@@ -122,7 +124,20 @@ def make_py(token, local: bool = False):
                         and we are using this different notation cuz I don't want space
                         between the operands... 'foo.bar' over 'foo . bar'
         """
-        space = "" if tok["operator"] == "." else " "
+        
+        # give space between operands by default
+        s1 = s2 = " "
+
+        # to access the keys for the operands on each side
+        left_key, right_key = "left", "right"
+
+        if tok["operator"] == ".":
+            s1 = s2 = ""
+
+        if tok["operator"] == ":":
+            left_key, right_key = "key", "value"
+            # no space after the 'key' => {"key": value}
+            s1 = ""
 
         # if tok["operator"] == ".":
 
@@ -134,12 +149,13 @@ def make_py(token, local: bool = False):
         #         })
         # else:
         """if this is a regular binary operator, then give space!"""
-        return "{left}{s}{op}{s}{right}".format(
+        return "{left}{s1}{op}{s2}{right}".format(
             **{
-                "left": pythonise(tok["left"]),
+                "left": pythonise(tok[left_key]),
                 "op": handle_operators(tok["operator"]),
-                "right": pythonise(tok["right"]),
-                "s": space
+                "right": pythonise(tok[right_key]),
+                "s1": s1,
+                "s2": s2
             })
 
     def py_assign(tok):
@@ -186,20 +202,33 @@ def make_py(token, local: bool = False):
 
         return o
 
+    def py_dict(tok):
+        """This turns a dictionary AST into a dictionary with boundary definition like this `<<<| |>>>` """
+        o = "<<<|{args}|>>>".format(
+            **{"args": ", ".join(list(map(lambda x: py_binary(x), tok["content"])))})
+        return o
+
+    """ NOTE: Let all blocks be like this:
+        if [COND] {\n
+            [EXPRESSION]
+        \n}
+        Asin, the curly braces should be at the end of everyline
+    """
+
     def py_if(tok):
         """creates a Python if statement"""
         # TODO: support elif...
 
-        o = "if (" + pythonise(tok["cond"]) + ") {\n"\
-        + pythonise(tok["then"]) + "\n}" + ("\nelse {\n" + pythonise(tok["else"]) +\
-         "\n}" if tok.get("else", None) else "")
+        o = "if (" + pythonise(tok["cond"]) + ") {\n"
+        + pythonise(tok["then"]) + "\n}" + ("\nelse {\n" + pythonise(tok["else"]) +
+                                            "\n}" if tok.get("else", None) else "")
 
         return o
 
     def py_while(tok):
         """while loop, returns python while loop!"""
 
-        o = "while (" + pythonise(tok["cond"]) + ") {\n"\
+        o = "while (" + pythonise(tok["cond"]) + ") {\n"
         + pythonise(tok["then"]) + "\n}"
 
         return o
@@ -207,7 +236,7 @@ def make_py(token, local: bool = False):
     def py_forloop(tok):
         """forloop, returns python for loop!"""
 
-        o = "for " + pythonise(tok["header"]) + " {\n"\
+        o = "for " + pythonise(tok["header"]) + " {\n"
         + pythonise(tok["body"]) + "\n}"
 
         return o
@@ -359,7 +388,7 @@ def make_py(token, local: bool = False):
             # or even a python module that starts with 'py_'
             # return an error!
             o = "# !!! Hapy cannot import {module}. Sorry :/ !!!\n".\
-            format(**{"module": tok["module"]["value"]})
+                format(**{"module": tok["module"]["value"]})
 
         return o
 
@@ -372,4 +401,26 @@ def make_py(token, local: bool = False):
 
 
 if __name__ == "__main__":
-    print('Generate Python!')
+
+    # code = """
+    #         import math;
+    #         import test; # THIS IS A CUSTOM MODULEEE!!!
+    #         import something; # THIS IS A LOCAL MODULE
+    #         print(math.pi);
+    #         print(test.__name__);
+    #         print(test.func1());
+    #         print(something.do_something)
+    #         """
+    code = """class Cow {
+        has name = {};
+
+       def when_created() {
+
+        };
+    };"""
+    inputs = InputStream(code)
+    tokens = TokenStream(inputs)
+    ast = parse(tokens)
+    python_code = make_py(ast)
+
+    print(python_code)

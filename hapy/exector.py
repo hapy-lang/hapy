@@ -2,7 +2,8 @@
 execute python from string! thank you Jesus!
 """
 
-import sys, traceback
+import sys
+import traceback
 import code as _code
 from io import StringIO
 

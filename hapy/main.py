@@ -33,6 +33,9 @@ if __name__ == "__main__":
          print(frank.say_hello());
          print(issubclass(Man, Person));
 
+            hello(age=20.3, year=1999);
+            dict = {1:2};
+            print(dict);
          """
 
    run2(transpile(code))
