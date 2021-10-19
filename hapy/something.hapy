@@ -42,10 +42,10 @@ class Square inherits Rectangle {
 
 sq = Square();
 
-print(sq.area());
+print("area of sq l=20 => ", sq.area());
 
 class Cube inherits Square {
-    
+
     # don't add the initializer if you aren't initializing anything! :9
     # def when_created() {};
 

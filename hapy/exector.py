@@ -16,8 +16,9 @@ codeErr = StringIO()
 def run2(source: str, file=False):
     lcls = {"sys": sys, "__name__": "__main__"}
     interpreter = _code.InteractiveInterpreter(locals=lcls)
-    # here, we are saying this guy come's from the main_string
-    interpreter.runsource(source, '<main_string>', 'exec')
+    # here, we are saying this guy come's from the
+    # actually, try to get the name of the file!
+    interpreter.runsource(source, '<main>', 'exec')
 
 
 def run(code: str):

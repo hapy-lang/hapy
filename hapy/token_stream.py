@@ -5,7 +5,7 @@ There are diff types of Tokens,
 variables, digits, operators, keywords, strings etc
 """
 from typing import Any, Callable
-from input_stream import InputStream
+from .input_stream import InputStream
 
 """
 stuff = { "english_name": "how_we_use_it" }

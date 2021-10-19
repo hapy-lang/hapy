@@ -6,12 +6,7 @@ THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
 """
 
 import json
-from token_stream import TokenStream
-from input_stream import InputStream
-
-from token_parser import parse
-from exector import run
-from importer import get
+from .importer import get
 """ NOTE: Let all blocks be like this:
     if [COND] {\n
         [EXPRESSION]
@@ -129,7 +124,7 @@ def make_py(token, local: bool = False):
                         and we are using this different notation cuz I don't want space
                         between the operands... 'foo.bar' over 'foo . bar'
         """
-        
+
         # give space between operands by default
         s1 = s2 = " "
 
@@ -224,9 +219,8 @@ def make_py(token, local: bool = False):
         """creates a Python if statement"""
         # TODO: support elif...
 
-        o = "if (" + pythonise(tok["cond"]) + ") {\n"
-        + pythonise(tok["then"]) + "\n}" + ("\nelse {\n" + pythonise(tok["else"]) +
-                                            "\n}" if tok.get("else", None) else "")
+        o = "if (" + pythonise(tok["cond"]) + ") {\n" + pythonise(tok["then"]) + "\n}" + \
+            (("\nelse {\n" + pythonise(tok["else"]) + "\n}") if tok.get("else", None) else "")
 
         return o
 
@@ -241,7 +235,7 @@ def make_py(token, local: bool = False):
     def py_forloop(tok):
         """forloop, returns python for loop!"""
 
-        o = "for " + pythonise(tok["header"]) + " {\n"
+        o = "for " + pythonise(tok["header"]) + " {\n" \
         + pythonise(tok["body"]) + "\n}"
 
         return o

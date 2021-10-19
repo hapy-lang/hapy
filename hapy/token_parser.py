@@ -3,8 +3,8 @@ parser
 from: https://lisperator.net/pltut/parser/the-parser
 """
 import json
-from token_stream import TokenStream
-from input_stream import InputStream
+from .token_stream import TokenStream
+from .input_stream import InputStream
 
 FALSE = {"type": "bool", "value": False}
 PASS = {"type": "var", "value": "pass"}
@@ -25,9 +25,6 @@ def parse(input: TokenStream):
 
     PRECEDENCE = {
         "=": 1,
-        "is": 1,
-        "in": 1,  # not 100% sure why this has 1 precedence :p
-        ".": 1,
         ":": 1,
         "=": 1,  # not 100% sure why this has 1 precedence :p
         "or": 2,
@@ -102,7 +99,7 @@ def parse(input: TokenStream):
         if is_op(op):
             input.next()
         else:
-            input.croak(f"Expecting punctuation got: \"{op}\"")
+            input.croak(f"Expecting operator got: \"{op}\"")
 
     def unexpected(msg="unexpected token: %s "):
         input.croak(msg % json.dumps(input.peek()))
@@ -124,7 +121,8 @@ def parse(input: TokenStream):
 
                 return maybe_binary(
                     {
-                        "type": binary_type.get(tok["value"], "binary"),
+                        "type":
+                        binary_type.get(tok["value"], "binary"),
                         "operator":
                         tok["value"],
                         "left" if tok["value"] != ":" else "key":
@@ -138,6 +136,7 @@ def parse(input: TokenStream):
 
     def delimited(start, stop, separator, parser):
         """ get all the args for example """
+
         args, first = [], True
 
         skip_punc(start)
@@ -151,6 +150,7 @@ def parse(input: TokenStream):
             if is_punc(stop):
                 break
             args.append(parser())
+
         skip_punc(stop)
         return args
 
@@ -168,12 +168,13 @@ def parse(input: TokenStream):
         return {"type": "var", "value": name["value"]}
 
     def parse_if():
-        '''Thank you Jesus!!!
-        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
-        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
+        """sumary_line
 
-        Lean khan I have done it!!!!!
-        '''
+        Keyword arguments:
+        argument -- description
+        Return: return_description
+        """
+
         block_kw("set")
         skip_kw("if")
         cond = parse_expression()
@@ -194,12 +195,13 @@ def parse(input: TokenStream):
         return ret
 
     def parse_while():
-        """ this is literally the same as parse_if but I keep seperate just in case """
+        """ parse while"""
+        block_kw("set")
 
         '''Thank you Jesus!!!
-        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
-        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
-        
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}".
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block.
+
         Lean khan I have done it!!!!!
         '''
         block_kw("set")
@@ -221,12 +223,6 @@ def parse(input: TokenStream):
 
     def parse_forloop():
         """ read a for-loop expression """
-        '''Thank you Jesus!!!
-        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
-        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
-        
-        Lean khan I have done it!!!!!
-        '''
         block_kw("set")
 
         skip_kw("for")
@@ -240,14 +236,7 @@ def parse(input: TokenStream):
         return ret
 
     def parse_function():
-        # skip the 'def' keyword!
-
-        '''Thank you Jesus!!!
-        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}". 
-        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block. 
-
-        Lean khan I have done it!!!!!
-        '''
+        """stuff"""
         block_kw("set")
 
         skip_kw("def")
@@ -342,7 +331,7 @@ def parse(input: TokenStream):
     def parse_modulename():
         name = input.next()
         if name["type"] != "var":
-            input.croak("Expecting variable name")
+            input.croak("Expecting module name")
         return {"type": "module", "value": name["value"]}
 
     def parse_import():
@@ -520,7 +509,7 @@ if __name__ == "__main__":
 
     #     hello();
     # """
-    code = """{key1 : 4, 3:9, 0:['34', 5, False]}; 
+    code = """{key1 : 4, 3:9, 0:['34', 5, False]};
     #var = 45;
     for (True) {
       print("helloworld");
