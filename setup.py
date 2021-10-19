@@ -19,6 +19,9 @@ setup(
     install_requires=[requirements],
     include_package_data=True,
     python_requires='>=3.7',
+    setup_requires=[
+        "wheel"
+    ],
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",

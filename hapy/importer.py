@@ -10,8 +10,12 @@ fullpath = os.path.realpath(__file__)
 HAPY_PATH = os.path.dirname(fullpath)
 # TODO: add a short description and other info to these modules...
 hapy_modules = {
-    "test": f"{HAPY_PATH}/modules/test_module.py",
-    "popo": f"{HAPY_PATH}/modules/popo_module.py"
+    "test": {"path": f"{HAPY_PATH}/modules/test_module.py",
+        "description": "Test module for testing",
+        "functions": []},
+    "popo": {"path": f"{HAPY_PATH}/modules/popo_module.py",
+        "description": "Test module for testing",
+        "functions": []}
     }
 
 def all_local_modules():
@@ -106,8 +110,8 @@ def get(module_name: str, is_local: bool = False) -> str:
     import_result = ""
 
     if module_name in hapy_modules.keys():
-        module_file = hapy_modules.get(module_name)
-        with open(module_file, "r") as file:
+        module = hapy_modules.get(module_name)
+        with open(module["path"], "r") as file:
             code = file.read()
 
             # format for import_result => (status: bool, type: [1,2,3,4],
@@ -119,8 +123,8 @@ def get(module_name: str, is_local: bool = False) -> str:
         from hapy.transpiler import transpile
         # transpile local module and all...
         # TODO: we are assuming the file exists! WRONG!
-        module_file = module_name + ".hapy"
-        with open(module_file, "r") as file:
+        module_filepath = module_name + ".hapy"
+        with open(module_filepath, "r") as file:
             code = file.read()
             # nonlocal transpile
             # now we have to transpile this code to python!
