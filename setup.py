@@ -5,7 +5,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = fh.read()
 setup(
     name='Hapy',
-    version='0.1.0',
+    version='0.1.1',
     author='Emmanuel Segun-Lean',
     author_email=
     'core-team.435caa94544f383ce9a89fab69dafa5b.show-sender@streams.zulipchat.com',
