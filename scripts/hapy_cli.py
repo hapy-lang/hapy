@@ -42,7 +42,7 @@ def cli():
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
 @click.option('-s', '--save', 'save', is_flag=True, help="Should save compiled Python to file")
-def run(filename, compile_only, save, inline):
+def run(filename, compile_only, save):
     """Execute Hapy files
 	Can either
 	1. Compile and return compiled code or
@@ -54,17 +54,13 @@ def run(filename, compile_only, save, inline):
 
     click.echo(f'Running {filename}! from {cwd}')
 
+    # check if file ends in `.hapy` if not throw error!
+    if not filename.endswith(".hapy"):
+        raise click.ClickException("Not a Hapy file :/")
+
     with open(filename, "r") as file:
         hapy_code = file.read()
         compiled_python = transpile(hapy_code)
-
-    if inline:
-        # compile the python or execute!
-        compiled_python = transpile(hapy_code)
-        if compile_only:
-            return click.echo(compiled_python)
-        else:
-            return run2(compiled_python)
 
     # if user wants to save file!
     if save:
@@ -85,8 +81,7 @@ def run(filename, compile_only, save, inline):
 @click.argument('code', type=str)
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
-# @click.option('-s', '--save', 'save', is_flag=True, help="Should save compiled Python to file")
-def inline(code, compile_only):
+def eval(code, compile_only):
     """Compile Hapy from line of code"""
     compiled_python = ""
 
@@ -174,4 +169,4 @@ def repl():
 # assign commands to the cli command group...
 cli.add_command(run)
 cli.add_command(repl)
-cli.add_command(inline)
+cli.add_command(eval)

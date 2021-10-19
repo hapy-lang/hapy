@@ -1,11 +1,13 @@
 ### a roughpaper on ideas, documentation, todos and notes
 ### can later be used to generate our docs...
 
+Versions use [Semantic Versioning](https://semver.org/)
+
 things I want ha.py to support... (15/09/21)
 
 This dialect should be able to be used to teach Python. That's it!
 
-- [x] if statements // since version 0.0.1
+- [x] if statements // since version 0.1.0
 - [x] WHILE statements
 --- okay for now :)
 - [x] for loops
@@ -23,7 +25,7 @@ This dialect should be able to be used to teach Python. That's it!
 
 ### NOTES
 - 1. Always check if token_stream recognizes the new keyword you added by
-including it in the list of keywords... 
+including it in the list of keywords...
 - 2. I noticed `return self.name * 2;` this returned the wrong thing. The precendence should be like this
  `return (self.name) * 2` - has been fixed btw
 
