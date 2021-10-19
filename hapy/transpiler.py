@@ -2,12 +2,12 @@
 I'm thinking of gathering all the things into one function...
 LOL Not very good idea. 
 """
-from input_stream import InputStream
-from token_stream import TokenStream
-from token_parser import parse
-from generate_py import make_py
-from indent import indent
-from exector import run
+from .input_stream import InputStream
+from .token_stream import TokenStream
+from .token_parser import parse
+from .generate_py import make_py
+from .indent import indent
+from .exector import run
 
 
 def transpile(code: str, local: bool = False, no_indent=False) -> str:

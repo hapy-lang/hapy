@@ -142,5 +142,5 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
+.pypirc
 # End of https://www.toptal.com/developers/gitignore/api/python
