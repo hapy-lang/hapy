@@ -37,7 +37,7 @@ def cli():
     pass
 
 
-@click.command()
+@cli.command()
 @click.argument('filename', type=click.Path(exists=True))
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
@@ -52,7 +52,7 @@ def run(filename, compile_only, save):
     cwd = os.getcwd()
     compiled_python = ""
 
-    click.echo(f'Running {filename}! from {cwd}')
+    click.echo(f'[i]: Running {filename}! from {cwd}')
 
     # check if file ends in `.hapy` if not throw error!
     if not filename.endswith(".hapy"):
@@ -65,7 +65,7 @@ def run(filename, compile_only, save):
     # if user wants to save file!
     if save:
         new_filename = filename.rstrip(".hapy") + ".ha.py"
-        click.echo("\n\n" +"Saving file in same folder as %s" % new_filename + "\n\n")
+        click.echo("\n\n" +"[i]: Saved file as %s" % new_filename + "\n\n")
         with open(new_filename, "w") as py_file:
             py_file.write(compiled_python)
 
@@ -76,8 +76,13 @@ def run(filename, compile_only, save):
         run2(compiled_python)
 
 
+# To prevent Python's 'eval'/'exec' from clashing with ours
+py_eval = eval
+py_exec = exec
+
+
 # Inline compilation
-@click.command()
+@cli.command()
 @click.argument('code', type=str)
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
@@ -89,19 +94,26 @@ def eval(code, compile_only):
         # compile the python or execute!
         compiled_python = transpile(code)
         if compile_only:
-            return click.echo(compiled_python)
+            return click.echo(compiled_python, nl=False)
         else:
-            return run2(compiled_python)
+            try:
+                click.echo(py_eval(compiled_python), nl=False)
+            except:
+                try:
+                    out = py_exec(compiled_python)
+                    if out is not None:
+                        click.echo(out, nl=False)
+                except Exception as e:
+                        click.echo(f"Error: {e}")
 
-
-@click.command()
+@cli.command()
 # no options for now... thank you Jesus!
 def repl():
-    """the Hapy REPL"""
+    """the Hapy REPL (interactive programming environment)"""
 
     prompt = f"hapy >"
     click.echo(
-        "Welcome to the Hapy REPL! Type a command and carry on!\n type exit() or Ctrl+C to close."
+        "Welcome to the Hapy REPL! Type a command and carry on!\ntype exit() or Ctrl+C to close."
     )
     try:
         while True:
@@ -164,9 +176,3 @@ def repl():
                 click.echo(f"Error: {e}")
     except KeyboardInterrupt as e:
         click.echo('\nBye! Exiting Hapy...')
-
-
-# assign commands to the cli command group...
-cli.add_command(run)
-cli.add_command(repl)
-cli.add_command(eval)
