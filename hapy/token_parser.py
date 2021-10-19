@@ -198,6 +198,14 @@ def parse(input: TokenStream):
         """ parse while"""
         block_kw("set")
 
+        '''Thank you Jesus!!!
+        Basically this creates a block of code. However a dictionary sysntax is quite similar "{}".
+        So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block.
+
+        Lean khan I have done it!!!!!
+        '''
+        block_kw("set")
+
         skip_kw("while")
 
         cond = parse_expression()
@@ -215,7 +223,6 @@ def parse(input: TokenStream):
 
     def parse_forloop():
         """ read a for-loop expression """
-
         block_kw("set")
 
         skip_kw("for")

@@ -227,7 +227,7 @@ def make_py(token, local: bool = False):
     def py_while(tok):
         """while loop, returns python while loop!"""
 
-        o = "while (" + pythonise(tok["cond"]) + ") {\n"\
+        o = "while (" + pythonise(tok["cond"]) + ") {\n"
         + pythonise(tok["then"]) + "\n}"
 
         return o
