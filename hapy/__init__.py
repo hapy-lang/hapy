@@ -9,4 +9,4 @@ import hapy.generate_py # noqa: F401
 import hapy.transpiler
 import hapy.importer
 
-VERSION_NUMBER = "0.0.1"
+__version__ = "0.2.0"
