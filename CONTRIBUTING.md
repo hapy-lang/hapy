@@ -47,7 +47,9 @@ This will outline the git workflow for development based on best practices and e
 * [Git branching model](https://nvie.com/posts/a-successful-git-branching-model/)
 * [Tips to enhance **GitHub** workflow](https://hackernoon.com/15-tips-to-enhance-your-github-flow-6af7ceb0d8a3)
 
-## Code Editors
+## Code Editors and Formatting
+
+There's an `.editorconfig` file at the root with some defaults.
 
 I (@LeanKhan) started with Sublime Text as the editor because it was light. But you can use anyone. I use these extensions so maybe find something similar:
 
@@ -56,7 +58,9 @@ I (@LeanKhan) started with Sublime Text as the editor because it was light. But 
 - Factor8 plugin and Sublime extension
 - Anaconda Sublime Extension though I haven't got it working properly
 
-As for coding style, I use thes Linters and Formatters defaults
 I followed this article for setting up Sublime Text for Python https://karansthr.gitlab.io/fosstack/setup-sublime-python/index.html
 
-I might keep on using Sublime for this stage of the project though.
+On VSCode, I use these extensions:
+
+- ms-python.vscode-pylance
+- ms-python.python
