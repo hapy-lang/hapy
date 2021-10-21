@@ -405,12 +405,15 @@ def parse(input: TokenStream):
                 if block_kw("get"):
                     return parse_prog()
                 return parse_dict()
-            if is_kw("dict"):
-                input.next()
-                skip_punc("(")
-                exp = parse_dict()
-                skip_punc(")")
-                return exp
+            # Python already has a 'dict' function,
+            #  no need for us to reimplement the functionality.
+
+            # if is_kw("dict"):
+            #     input.next()
+            #     skip_punc("(")
+            #     exp = parse_dict()
+            #     skip_punc(")")
+            #     return exp
             # parse lists here...
             if is_punc("["):
                 return parse_list()
@@ -453,6 +456,8 @@ def parse(input: TokenStream):
         return {"type": "list", "elements": elems}
 
     def parse_dict():
+        # TODO: if a user types {1,2,3} we should handle it corretly,
+        # tell them it's a syntax error!
         elem = delimited("{", "}", ",", parse_expression)
         return {"type": "dict", "content": elem}
 
@@ -509,20 +514,7 @@ if __name__ == "__main__":
 
     #     hello();
     # """
-    code = """{key1 : 4, 3:9, 0:['34', 5, False]};
-    #var = 45;
-    for (True) {
-      print("helloworld");
-      {key1 : 4, 3:9, 0:['34', 5, False]};
-            if (True){
-                dict({});
-            }else {
-                    print('Smaller!');
-            };
-    };
-    {key1 : 4, 3:9, 0:['34', 5, False]};
-    dict({1:1});
-    """
+    code = """dict({1:1, 2:2, 3:3});"""
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)
