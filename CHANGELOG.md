@@ -16,3 +16,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - smelling error because of clashing names when running the previous `hapy eval`
+- Removed dict and list from list of keywords
