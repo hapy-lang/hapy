@@ -29,10 +29,8 @@ keywords = {
     "None": "None",
     "return": "return",
     "def": "def",
-    "list": "list",
     "True": "True",
     "False": "False",
-    "dict": "dict"
 }
 
 operator_words = {
