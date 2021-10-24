@@ -17,17 +17,15 @@ Check if Hapy is accessible globally, open a new Command-line/terminal and run `
 
 All these commands are to be run in the command line:
 
-`hapy --help` - prints the help message
-
 `hapy --version` or `hapy -v` - prints the installed Hapy version
 
 `hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`.
 
-`hapy <filename>` - execute a script. Hapy uses `.hapy` file extension. For example: `hapy lagbaja.hapy`. Pass `--compile-only` to just print the compiled script or you can pass `--save` to save the compiled Python in a file.
+`hapy <filename>` - execute a script. Hapy uses `.hapy` file extension. For example: `hapy lagbaja.hapy`. Pass `--compile-only` to just get the compiled script and you can add `--save` to save the compiled Python in a file ending in `.ha.py`.
 
 `hapy run <filename>` - same as above.
 
-`hapy do "<code to evaluate>"` - compiles and executes Hapy code as a string. Pass `--compile-only` to skip execution.
+`hapy do "<code to evaluate>"` - compiles and executes hapy code as a string. Pass `--compile-only` to skip execution.
 
 More options on the way :)
 
