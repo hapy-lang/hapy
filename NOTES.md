@@ -3,8 +3,6 @@
 
 Versions use [Semantic Versioning](https://semver.org/)
 
-To Contributors: for now `VERSION.txt` should match the project's version
-
 things I want ha.py to support... (15/09/21)
 
 This dialect should be able to be used to teach Python. That's it!
