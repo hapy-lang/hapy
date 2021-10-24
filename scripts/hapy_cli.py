@@ -19,14 +19,20 @@ def check_commands(command: str) -> None:
     if command == "clear":
         # obviosly put a check here for the current operating system!
         os.system("cls")
-    elif command == "see modules":
+    elif command == "show modules":
         # obviosly put a check here for the current operating system!
-        locs = "\n".join(all_local_modules())
-        haps = "\n".join(hapy_modules.keys())
-        click.echo("""Type `import <module>` to import a module.
-			\nOr `import py_<python module>` for Python modules.
-			\nHapy Modules:\n{}
-			\nLocal Modules:\n{}""".format(haps, locs))
+        local_modules = "\n".join(all_local_modules())
+        hapy_builtins = "\n".join(hapy_modules.keys())
+        click.echo("""Use `import <module>` to import a Hapy module.
+			\nOr `import py_<python module>` for built-in Python modules.""")
+
+        # list Hapy built-ins
+        click.secho("\nHapy Built-in Modules:", fg="green")
+        click.echo("{}".format(hapy_builtins))
+
+        # print local modules (later including installed ones)
+        click.secho("\nLocal Modules:", fg="green")
+        click.echo("{}".format(local_modules))
     else:
         res = False
 
@@ -64,7 +70,7 @@ def run(filename, compile_only, save):
     cwd = os.getcwd()
     compiled_python = ""
 
-    click.echo(f'[i]: Running {filename}! from {cwd}')
+    click.secho(f'[i]: Compiling {filename.lstrip(".")}...\n', fg="green")
 
     # check if file ends in `.hapy` if not throw error!
     if not filename.endswith(".hapy"):
@@ -77,12 +83,13 @@ def run(filename, compile_only, save):
     # if user wants to save file!
     if save:
         new_filename = filename.rstrip(".hapy") + ".ha.py"
-        click.echo("\n\n" +"[i]: Saved file as %s" % new_filename + "\n\n")
+        click.secho("\n" +"[i]: Saved file as %s" % new_filename + "\n", fg="green")
         with open(new_filename, "w") as py_file:
             py_file.write(compiled_python)
 
     if compile_only:
-        click.echo(compiled_python)
+        # click.secho("Compiled code:\n", fg="green", underline=True)
+        click.secho(compiled_python, bold=True)
     else:
         # execute the compiled code
         run2(compiled_python)
@@ -153,7 +160,8 @@ def repl(ctx):
         ,fg="green"
     )
 
-    click.echo("Type a command and carry on!\ntype exit() or Ctrl+C to close.\n")
+    click.echo("Type a command and just dey go!\nUse exit() or Ctrl+C to close")
+    click.secho("\n- Type 'show modules' to list all modules you can use.\n", fg="blue")
 
 
     try:
