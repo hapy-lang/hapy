@@ -1,18 +1,12 @@
 from io import open_code
 import os
-from pathlib import Path
-import re
 import click
+import sys
 from click_default_group import DefaultGroup
 from hapy.exector import run, run2
 from hapy.transpiler import transpile
 from hapy.importer import all_local_modules, hapy_modules
-from pkg_resources import get_distribution
-from hapy import __version__ as expected_version
 
-installed_version = get_distribution("hapy").version
-
-VERSION = expected_version or installed_version or "N/A"
 
 def check_commands(command: str) -> None:
     res = True
@@ -33,19 +27,13 @@ def check_commands(command: str) -> None:
     return res
 
 
-@click.group(cls=DefaultGroup, default='repl', default_if_no_args=True, invoke_without_command=True)
-@click.option('-v', '--version', 'version', is_flag=True, help="Print the Hapy version")
-def cli(version):
+@click.group(cls=DefaultGroup, default='run', default_if_no_args=True)
+def cli():
     """This is the Hapy programming language command-line tool.
 	- Hapy CLI can execute .hapy files
 
 	You can contribute to Hapy here https://github.com/hapy-lang/hapy
 	"""
-
-    if version:
-        click.secho(f"Hapy {VERSION}", fg='green')
-        return
-
     pass
 
 
@@ -87,12 +75,18 @@ def run(filename, compile_only, save):
         # execute the compiled code
         run2(compiled_python)
 
+
+# To prevent Python's 'eval'/'exec' from clashing with ours
+py_eval = eval
+py_exec = exec
+
+
 # Inline compilation
 @cli.command()
 @click.argument('code', type=str)
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
-def do(code, compile_only):
+def eval(code, compile_only):
     """Compile Hapy from line of code"""
     compiled_python = ""
 
@@ -103,59 +97,24 @@ def do(code, compile_only):
             return click.echo(compiled_python, nl=False)
         else:
             try:
-                click.echo(eval(compiled_python), nl=False)
+                click.echo(py_eval(compiled_python), nl=False)
             except:
                 try:
-                    out = exec(compiled_python)
+                    out = py_exec(compiled_python)
                     if out is not None:
                         click.echo(out, nl=False)
                 except Exception as e:
                         click.echo(f"Error: {e}")
 
-@cli.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True
-))
-@click.pass_context
-def repl(ctx):
+@cli.command()
+# no options for now... thank you Jesus!
+def repl():
     """the Hapy REPL (interactive programming environment)"""
 
     prompt = f"hapy >"
-
-    # ---> HAPY RUN <----
-
-    # join all the arguments
-    all_args = " ".join(ctx.args)
-    # only match arguments ending in '.hapy' for now
-    # thank you Jesus!
-    matched = re.findall(r'([a-zA-Z\./]*\.hapy)', all_args)
-    # actually, loop through the args and find all applicable arguments/options
-    if len(list(matched)) > 0:
-        filename = ""
-        compile_only = False
-        save = False
-        for a in ctx.args:
-            if a.endswith(".hapy"):
-                filename = a
-            elif a == "-c" or a == "--compile-only":
-                compile_only = True
-            elif a == "-s" or a == "--save":
-                save = True
-
-        ctx.forward(run, filename=filename, compile_only=compile_only, save=save)
-        return
-
-    # ---> HAPY RUN <----
-
-
-    click.secho(
-        "Welcome to the Hapy REPL!"
-        ,fg="green"
+    click.echo(
+        "Welcome to the Hapy REPL! Type a command and carry on!\ntype exit() or Ctrl+C to close."
     )
-
-    click.echo("Type a command and carry on!\ntype exit() or Ctrl+C to close.\n")
-
-
     try:
         while True:
             try:

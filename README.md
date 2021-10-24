@@ -4,28 +4,24 @@ Hapy is a simple programming language that uses Hausa vocabulary and compiles to
 
 ## Installation
 
-Hapy can be installed using pip (pre-release versions)
+Hapy can be easily installed using pip (Test PyPi for now)
 
 ```
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ Hapy
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ Hapy=0.0.1
 ```
 
-> If you have installation problems on Windows, try [installing Python](https://python.org/downloads) from the Python website gan and not Microsoft Store.
-
-Check if Hapy is accessible globally, open a new Command-line/terminal and run `hapy --help`. If you're not seeing Hapy your Python packages directory may not be in PATH or some other pip/python issue. We noticed all problems disappear when we get Python from their website.
+Check if Hapy is accessible globally `hapy --help`, if not your Python packages directory may not be in PATH
 ## Usage
 
 All these commands are to be run in the command line:
 
-`hapy --version` or `hapy -v` - prints the installed Hapy version
-
-`hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`.
+`hapy repl` - launch REPL. Exit via `exit()`, or `Ctrl-C`.
 
 `hapy <filename>` - execute a script. Hapy uses `.hapy` file extension. For example: `hapy lagbaja.hapy`. Pass `--compile-only` to just get the compiled script and you can add `--save` to save the compiled Python in a file ending in `.ha.py`.
 
 `hapy run <filename>` - same as above.
 
-`hapy do "<code to evaluate>"` - compiles and executes hapy code as a string. Pass `--compile-only` to skip execution.
+`hapy eval "<code to evaluate>"` - compiles and executes hapy code as a string. Pass `--compile-only` to skip execution.
 
 More options on the way :)
 
