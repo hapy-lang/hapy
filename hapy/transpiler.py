@@ -1,6 +1,6 @@
 """
 I'm thinking of gathering all the things into one function...
-LOL Not very good idea. 
+LOL Not very good idea.
 """
 from .input_stream import InputStream
 from .token_stream import TokenStream
@@ -53,36 +53,36 @@ if __name__ == '__main__':
         return 2 * self.length + 2 * self.width;
     };
 
-};
+};"""
 
-class Square inherits Rectangle {
-    has length;
+# class Square inherits Rectangle {
+#     has length;
 
-    use Rectangle(length, length);
+#     use Rectangle(length, length);
 
-    def when_created() {};
-};
+#     def when_created() {};
+# };
 
-sq = Square(4);
+# sq = Square(4);
 
-print(sq.area());
+# print(sq.area());
 
-class Cube inherits Square {
+# class Cube inherits Square {
 
-    def surface_area() {
-        face_area = super().area();
-        return face_area * 6;
-    };
+#     def surface_area() {
+#         face_area = super().area();
+#         return face_area * 6;
+#     };
 
-    def volume() {
-        face_area = super().area();
-        return face_area * self.length;
-    };
-};
+#     def volume() {
+#         face_area = super().area();
+#         return face_area * self.length;
+#     };
+# };
 
-c = {"class": Cube(3)};
+# c = {"class": Cube(3)};
 
-print(c.get("class"));
-    """
+# print(c.get("class"));
+#     """
 
     run(transpile(code, no_indent=False))
