@@ -21,7 +21,7 @@ All these commands are to be run in the command line:
 
 `hapy --version` or `hapy -v` - prints the installed Hapy version
 
-`hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`.
+`hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`. Pass `--english` to use Hapy english vocabulary.
 
 `hapy <filename>` - execute a script. Hapy uses `.hapy` file extension. For example: `hapy lagbaja.hapy`. Pass `--compile-only` to just print the compiled script or you can pass `--save` to save the compiled Python in a file.
 
@@ -62,6 +62,46 @@ On it's way...
 ## Documentation
 
 on it's way...
+
+### Hausa -> English  Dictionary
+`key (Hausa): value (English)`
+
+```python
+keywords = {
+    "in": "if",
+    "then": "then",
+    "indai": "while",
+    "ma": "for",
+    "karo": "import",
+    "iri": "class",
+    "yanada": "has",
+    "gada": "inherits",
+    "anfani": "use",
+    "wuce": "pass",
+    "daga": "from",
+    "imbahakaba": "else",
+    "cikin": "in",
+    "Babu": "None",
+    "dawo": "return",
+    "aiki": "def",
+    "Gaskiya": "True",
+    "Karya": "False",
+
+}
+
+operator_words = {
+    "ba": "not",
+    "da": "and",
+    "ko": "or",
+    "shine": "is",
+    "cikin": "in",
+    "of": "of",
+    "times": "times",
+    "hada": "plus",
+    "raba": "dividedby",
+    "chire": "minus"
+}
+```
 
 ## Goals
 
