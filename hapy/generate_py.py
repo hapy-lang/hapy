@@ -7,6 +7,7 @@ THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
 
 import json
 from .importer import get
+from .translations import keywords, operator_words, builtin_functions, builtin_funcs
 """ NOTE: Let all blocks be like this:
     if [COND] {\n
         [EXPRESSION]
@@ -14,27 +15,6 @@ from .importer import get
     Asin, the curly braces should be at the end of everyline
 """
 
-word_ops = {
-    "and": "and",
-    "or": "or",
-    "is": "=",
-    "not": "!=",
-    "in": "in",
-    "plus": "+",
-    "minus": "-",
-    "times": "*",
-    "dividedby": "/"
-}
-
-
-def handle_operators(op: str) -> str:
-    """ convert custom operators to python operators... """
-    # check if string operator, else just return op
-
-    if op.isalpha():
-        return word_ops.get(op)
-    else:
-        return op
 
 def is_in_parents_props(prop_name: str, parent_props) -> bool:
     """For every prop in parent check if that prop is same as the passed prop
@@ -58,6 +38,33 @@ def is_in_parents_props(prop_name: str, parent_props) -> bool:
 
 def make_py(token, local: bool = False):
     """local is if this file is a local file"""
+
+    settings = token.get("settings", {"lang": "hausa"})
+
+    # TODO: NOTE: lease how do we ensure this dictionary is always
+    # accurate!
+    word_ops = {
+        operator_words[settings["lang"]]["and"]: "and",
+        operator_words[settings["lang"]]["or"]: "or",
+        operator_words[settings["lang"]]["is"]: "=",
+        operator_words[settings["lang"]]["not"]: "!=",
+        operator_words[settings["lang"]]["in"]: "in",
+        operator_words[settings["lang"]]["plus"]: "+",
+        operator_words[settings["lang"]]["minus"]: "-",
+        operator_words[settings["lang"]]["times"]: "*",
+        operator_words[settings["lang"]]["dividedby"]: "/"
+    }
+
+
+    def handle_operators(op: str) -> str:
+        """ convert custom operators to python operators... """
+        # check if string operator, else just return op
+
+        if op.isalpha():
+            return word_ops.get(op)
+        else:
+            return op
+
     def pythonise(token):
         switch = {
             "num": py_atom,
@@ -103,6 +110,10 @@ def make_py(token, local: bool = False):
 
     def py_var(tok):
         """return a plain variable value"""
+
+        # hmm, let's check if this var is a hausa builtin
+        if settings["lang"] == "hausa" and tok["value"] in builtin_functions["hausa"].values():
+            return builtin_funcs[tok["value"]]
 
         return tok["value"]
 
@@ -259,13 +270,13 @@ def make_py(token, local: bool = False):
 
         for t in tok["class_special_methods"]:
             # for each special method
-            if t["name"]["value"] == "when_created":
+            if t["name"]["value"] == builtin_functions[settings["lang"]]["when_created"]:
                 init += py_class_init(tok, t)
                 # the __str__ method
-            elif t["name"]["value"] == "when_string":
+            elif t["name"]["value"] == builtin_functions[settings["lang"]]["when_string"]:
                 init += py_function(
                     t, class_method=True, custom_name='__str__') + ";\n"
-            elif t["name"]["value"] == "when_printed":
+            elif t["name"]["value"] == builtin_functions[settings["lang"]]["when_printed"]:
                 # the __repr__ method
 
                 # TODO: might remove this since its sometimes redundant???
@@ -400,26 +411,4 @@ def make_py(token, local: bool = False):
 
 
 if __name__ == "__main__":
-
-    # code = """
-    #         import math;
-    #         import test; # THIS IS A CUSTOM MODULEEE!!!
-    #         import something; # THIS IS A LOCAL MODULE
-    #         print(math.pi);
-    #         print(test.__name__);
-    #         print(test.func1());
-    #         print(something.do_something)
-    #         """
-    code = """class Cow {
-        has name = {};
-
-       def when_created() {
-
-        };
-    };"""
-    inputs = InputStream(code)
-    tokens = TokenStream(inputs)
-    ast = parse(tokens)
-    python_code = make_py(ast)
-
-    print(python_code)
+    print("In generate_py")

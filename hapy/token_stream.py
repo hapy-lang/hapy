@@ -6,48 +6,14 @@ variables, digits, operators, keywords, strings etc
 """
 from typing import Any, Callable
 from .input_stream import InputStream
+from .translations import keywords, operator_words
 
 """
 stuff = { "english_name": "how_we_use_it" }
 e.g {"if": "if"} // {"if": "hausa_if"}
 """
-
-keywords = {
-    "if": "if",
-    "then": "then",
-    "while": "while",
-    "for": "for",
-    "import": "import",
-    "class": "class",
-    "has": "has",
-    "inherits": "inherits",
-    "use": "use",
-    "pass": "pass",
-    "from": "from",
-    "else": "else",
-    "in": "in",
-    "None": "None",
-    "return": "return",
-    "def": "def",
-    "True": "True",
-    "False": "False",
-}
-
-operator_words = {
-    "not": "not",
-    "and": "and",
-    "or": "or",
-    "is": "is",
-    "in": "in",
-    "of": "of",
-    "not in": "not in",
-    "is equal": "is equal",
-    "is not equal": "is not equal",
-    "times": "times",
-    "plus": "plus",
-    "dividedby": "dividedby",
-    "minus": "minus"
-}
+# NOTE: Search dict.keys() for Hausa, search dict.values()
+# for english
 
 operators = [">", "<", "==", "!=", ">=", "<=", "-", "+", "/", "*", "**", "//",
              "%", ".", "=", ":"]  # Wuta Added ":" for Dictionary
@@ -60,6 +26,8 @@ class TokenStream(InputStream):
         super().__init__(_input.input)
         self.current = None
         self.input = _input
+        # wait till the first non-space character...
+        self.code_yet = False
 
         # these keywords would go somewhere else!
         # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
@@ -67,15 +35,32 @@ class TokenStream(InputStream):
         # self.keywords = " if then while import from else in None return def
         # list True\
         # False "
-        self.keywords = keywords
-        self.operator_words = operator_words
+        # If it's an english file, check English keywords, if not
+        # check Hausa keywords.
+        self.keywords = keywords[self.settings["lang"]].values()
+        self.operator_words = operator_words[self.settings["lang"]].values()
         self.operators = operators
+
+        # print(keywords[self.settings["lang"]])
+        # print(keywords["hausa"])
 
         # self.operators = " > < >= <= && || "
 
+    def get_keywords(self):
+        if self.settings["lang"] == "eng":
+            return self.keywords.values()
+        elif self.settings["lang"] == "hausa":
+            return self.keywords.keys()
+
+    def get_operator_words(self):
+        if self.settings["lang"] == "eng":
+            return self.operator_words.values()
+        elif self.settings["lang"] == "hausa":
+            return self.operator_words.keys()
+
     def is_keyword(self, ch: str) -> bool:
         """Check if input is a part of keywords List"""
-        return ch in self.keywords.values()
+        return ch in self.keywords
 
     def is_digit(self, ch: str) -> bool:
         """Check if char is a digit"""
@@ -122,7 +107,6 @@ class TokenStream(InputStream):
         """ read while """
 
         string = ""
-
         while (not self.input.eof()) and predicate(self.input.peek()):
             string += self.input.next()
         return string
@@ -152,7 +136,7 @@ class TokenStream(InputStream):
         """ read identifier """
         word = self.read_while(self.is_id)
 
-        if word in self.operator_words.values():
+        if word in self.operator_words:
             return {"type": "op", "value": word}
 
         return {
@@ -189,8 +173,11 @@ class TokenStream(InputStream):
     def skip_comment(self):
         """skip comment"""
 
+        # TODO: maybe one day make comment token :)
+
         # lambda function since unnamed, used once and returns value simply
-        self.read_while(lambda ch: ch != "\n")
+        comment = self.read_while(lambda ch: ch != "\n" and ch != ";")
+
         self.input.next()
 
     def read_next(self):
@@ -203,7 +190,16 @@ class TokenStream(InputStream):
 
         ch = self.input.peek()
 
+        # if code_yet is false, check if ch is a space or #
+        # if ch is a space, do nothing
+        # if not space, make code_yet false
+        if not self.code_yet:
+            if not ch.isspace() and ch != "#":
+                self.code_yet = True
+
+
         if ch == "#":
+            # self.code_yet = False if self.code_yet else True
             self.skip_comment()
             return self.read_next()
 

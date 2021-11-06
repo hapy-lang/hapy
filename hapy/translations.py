@@ -80,7 +80,7 @@ def makeTranslationDicts():
     """
 
 
-    # make all this a dynamic loop!
+    # TODO: make all this a dynamic loop!
 
     keywords["hausa"] = dict((v,k) for k,v in kws_source.items())
     keywords["eng"] = dict((v,v) for k,v in kws_source.items())
