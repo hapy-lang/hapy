@@ -1,14 +1,14 @@
-from io import open_code
 import os
-from pathlib import Path
 import re
 import click
 from click_default_group import DefaultGroup
-from hapy.exector import run, run2
+from hapy.exector import run2
 from hapy.transpiler import transpile
 from hapy.importer import all_local_modules, hapy_modules
 from pkg_resources import get_distribution
 from hapy import __version__ as expected_version
+from code import InteractiveConsole
+import sys
 
 installed_version = get_distribution("hapy").version
 
@@ -124,12 +124,14 @@ def do(code, compile_only):
     allow_extra_args=True
 ))
 @click.pass_context
-def repl(ctx):
+@click.option('-e', '--english', 'english', is_flag=True, help="Use Hapy English instead of Hausa")
+def repl(ctx, english):
     """the Hapy REPL (interactive programming environment)"""
 
-    prompt = f"hapy >"
+    prompt = f"hapy>"
 
-    # ---> HAPY RUN <----
+    lcls = {"sys": sys, "__name__": "__repl__"}
+    runner = InteractiveConsole(locals=lcls)
 
     # join all the arguments
     all_args = " ".join(ctx.args)
@@ -152,17 +154,25 @@ def repl(ctx):
         ctx.forward(run, filename=filename, compile_only=compile_only, save=save)
         return
 
-    # ---> HAPY RUN <----
-
-
     click.secho(
         "Welcome to the Hapy REPL!"
         ,fg="green"
     )
 
-    click.echo("Type a command and just dey go!\nUse exit() or Ctrl+C to close")
-    click.secho("\n- Type 'show modules' to list all modules you can use.\n", fg="blue")
 
+    if (english):
+        # tell Hapy compiler that it should listen for English vocabulary
+        # one way to do that is to change the ENV_VAR
+        os.environ["HAPY_LANG"] = "eng"
+        click.secho("-- Language is ENGLISH --")
+    else:
+        os.environ["HAPY_LANG"] = "hausa"
+        # TODO: write this is HAUSA
+        click.secho("-- Language is HAUSA --")
+
+
+    click.echo("\nType a command and just dey go!\nUse exit() or Ctrl+C to close")
+    click.secho("\n- Type 'show modules' to list all modules you can use.\n", fg="blue")
 
     try:
         while True:
@@ -210,17 +220,21 @@ def repl(ctx):
 
                     if not result:
                         code_2_run = transpile(code)
-						# maybe only transpile then exec?
-                        # print('2-run => ', repr(code_2_run))
-                        click.echo(eval(code_2_run))
-                except Exception as e:
-                    # check if _in ends in :
 
-                    code_2_run = transpile(code)
-                    # print(code)
-                    out = exec(code_2_run)
-                    if out is not None:
-                        click.echo(out)
+                        runner.push(code_2_run)
+                except Exception as e:
+                    # NOTE: I'm not sure if this is still useful...
+
+                    # I stopped using eval/exec because of scope and shii
+                    # the variables I defined were not staying
+                    print(e)
+
+                    # code_2_run = transpile(code)
+                    # # print(code)
+                    # # exec(code_2_run)
+                    # runner.runcode(code_2_run)
+                    # # if out is not None:
+                    # #     click.echo(out)
             except Exception as e:
                 click.echo(f"Error: {e}")
     except KeyboardInterrupt as e:
