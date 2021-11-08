@@ -32,7 +32,7 @@ All these commands are to be run in the command line:
 
 `hapy run <filename>` - same as above.
 
-`hapy do "<code to evaluate>"` - compiles and executes Hapy code as a string. Pass `--compile-only` to skip execution.
+`hapy do "<code to evaluate>"` - compiles and executes Hapy code as a string. Pass `--compile-only` to skip execution or pass `--english`/`-e` to use Hapy english vocabulary.
 
 More options on the way :)
 

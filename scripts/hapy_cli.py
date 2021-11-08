@@ -99,9 +99,17 @@ def run(filename, compile_only, save):
 @click.argument('code', type=str)
 @click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
 	does not execute")
-def do(code, compile_only):
+@click.option('-e', '--english', 'english', is_flag=True, help="Use Hapy English instead of Hausa")
+def do(code, compile_only, english):
     """Compile Hapy from line of code"""
     compiled_python = ""
+
+    if (english):
+        # tell Hapy compiler that it should listen for English vocabulary
+        # one way to do that is to change the ENV_VAR
+        os.environ["HAPY_LANG"] = "eng"
+    else:
+        os.environ["HAPY_LANG"] = "hausa"
 
     if code:
         # compile the python or execute!
