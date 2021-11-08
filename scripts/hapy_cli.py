@@ -151,7 +151,7 @@ def repl(ctx, english):
             elif a == "-s" or a == "--save":
                 save = True
 
-        ctx.forward(run, filename=filename, compile_only=compile_only, save=save)
+        ctx.invoke(run, filename=filename, compile_only=compile_only, save=save)
         return
 
     click.secho(

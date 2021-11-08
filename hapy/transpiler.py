@@ -55,6 +55,25 @@ if __name__ == '__main__':
 
 };"""
 
+    code = """
+            #! lang=hausa
+                in (True) {
+                    print(1);
+                } kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                } imbahakaba {
+                    print(3)
+                }
+    """
+
 # class Square inherits Rectangle {
 #     has length;
 
@@ -85,4 +104,4 @@ if __name__ == '__main__':
 # print(c.get("class"));
 #     """
 
-    run(transpile(code, no_indent=False))
+    print(transpile(code, no_indent=False))

@@ -1,3 +1,5 @@
+![Hapy Logo](https://i.ibb.co/qY10MRp/Whats-App-Image-2021-11-03-at-18-03-23.jpg)
+
 # Hapy - Write Python in Hausa with braces!
 
 Hapy is a simple programming language that uses Hausa vocabulary and compiles to Python. Originally as a final year school project.
@@ -5,6 +7,9 @@ Hapy is a simple programming language that uses Hausa vocabulary and compiles to
 ## Installation
 
 Hapy can be installed using pip (pre-release versions)
+
+**note:** Hapy is still in development so it might change *a lot* before full release. You can still join us for the ride!
+
 
 ```
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ Hapy
@@ -32,13 +37,13 @@ All these commands are to be run in the command line:
 More options on the way :)
 
 ## Example
-> Let's say 'kira' is `def` keyword in Hausa and 'buga' is the `print` keyword.
+> Let's say 'aiki' is `def` keyword in Hausa and 'buga' is the `print` keyword.
 Sample Hapy code
 ```python
     # example.hapy
 
     # wannan sharhi ne
-    kira muje(){
+    aiki muje(){
         buga("Let's Goooooo");
     };
 

@@ -26,7 +26,7 @@ def parse(input: TokenStream):
     PRECEDENCE = {
         "=": 1,
         ":": 1,
-        "=": 1,  # not 100% sure why this has 1 precedence :p
+        operator_words[input.settings["lang"]]["is"]: 1,
         operator_words[input.settings["lang"]]["or"]: 2,
         operator_words[input.settings["lang"]]["and"]: 3,
         "<": 7,
@@ -46,7 +46,6 @@ def parse(input: TokenStream):
         operator_words[input.settings["lang"]]["times"]: 20,
         operator_words[input.settings["lang"]]["dividedby"]: 20,
         # because self.name is one of the strongest bonds
-        operator_words[input.settings["lang"]]["is"]: 20,
         operator_words[input.settings["lang"]]["in"]: 20,
         ".": 30,
     }
@@ -182,8 +181,22 @@ def parse(input: TokenStream):
         # sha, I can add it tho...
         then = parse_expression()
         ret = {"type": "if", "cond": cond, "then": then}
+
+        ret["elifs"] = []
+
+        while is_kw(keywords[input.settings["lang"]]["elif"]):
+            block_kw("set")
+            skip_kw(keywords[input.settings["lang"]]["elif"])
+            elif_cond = parse_expression()
+            elif_then = parse_expression()
+            elif_tok = {"type": "elif", "cond": elif_cond, "then": elif_then}
+            ret["elifs"].append(elif_tok)
+
         if is_kw(keywords[input.settings["lang"]]["else"]):
             block_kw("set")
+            # TODO: this should be skip_kw("else") :)
+            # but I'm afraid it might cause problems :(
+
             input.next()
             ret["else"] = parse_expression()
 
@@ -516,12 +529,9 @@ if __name__ == "__main__":
     # """
     code = """
             #! lang=hausa
-
-            aiki nna(mesu) {
-                print("Ya ney %s" % mesu)
-            };
-
-            nna();
+        in (Gaskiya) {
+            print(2);
+        }
          """
     inputs = InputStream(code)
     tokens = TokenStream(inputs)

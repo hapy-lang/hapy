@@ -26,8 +26,6 @@ class TokenStream(InputStream):
         super().__init__(_input.input)
         self.current = None
         self.input = _input
-        # wait till the first non-space character...
-        self.code_yet = False
 
         # these keywords would go somewhere else!
         # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
@@ -40,11 +38,6 @@ class TokenStream(InputStream):
         self.keywords = keywords[self.settings["lang"]].values()
         self.operator_words = operator_words[self.settings["lang"]].values()
         self.operators = operators
-
-        # print(keywords[self.settings["lang"]])
-        # print(keywords["hausa"])
-
-        # self.operators = " > < >= <= && || "
 
     def get_keywords(self):
         if self.settings["lang"] == "eng":
@@ -190,16 +183,7 @@ class TokenStream(InputStream):
 
         ch = self.input.peek()
 
-        # if code_yet is false, check if ch is a space or #
-        # if ch is a space, do nothing
-        # if not space, make code_yet false
-        if not self.code_yet:
-            if not ch.isspace() and ch != "#":
-                self.code_yet = True
-
-
         if ch == "#":
-            # self.code_yet = False if self.code_yet else True
             self.skip_comment()
             return self.read_next()
 

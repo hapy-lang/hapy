@@ -19,7 +19,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """age = 20;\nage > 10"""
+        expected = """age = 20;\n(age > 10)"""
 
         actual = make_py(ast)
 
@@ -36,7 +36,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """bola_age = 20;\ntolu_age = 30 - 10"""
+        expected = """bola_age = 20;\ntolu_age = (30 - 10)"""
 
         actual = make_py(ast)
 

@@ -1,3 +1,5 @@
+import py_os;
+
 class Person {
     has name;
     has age = 0;
@@ -46,7 +48,7 @@ print("area of sq l=20 => ", sq.area());
 
 class Cube inherits Square {
 
-    # don't add the initializer if you aren't initializing anything! :9
+    # don't add the initializer if you aren't initializing anything!
     # def when_created() {};
 
     def surface_area() {

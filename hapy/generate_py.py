@@ -139,6 +139,8 @@ def make_py(token, local: bool = False):
         # give space between operands by default
         s1 = s2 = " "
 
+        brackets = ("(", ")")
+
         # to access the keys for the operands on each side
         left_key, right_key = "left", "right"
 
@@ -150,6 +152,9 @@ def make_py(token, local: bool = False):
             # no space after the 'key' => {"key": value}
             s1 = ""
 
+        if tok["type"] != "binary":
+            brackets = ("", "")
+
         # if tok["operator"] == ".":
 
         #     return "{left}{op}{right}".format(
@@ -160,14 +165,14 @@ def make_py(token, local: bool = False):
         #         })
         # else:
         """if this is a regular binary operator, then give space!"""
-        return "{left}{s1}{op}{s2}{right}".format(
+        return brackets[0] + "{left}{s1}{op}{s2}{right}".format(
             **{
                 "left": pythonise(tok[left_key]),
                 "op": handle_operators(tok["operator"]),
                 "right": pythonise(tok[right_key]),
                 "s1": s1,
                 "s2": s2
-            })
+            }) + brackets[1]
 
     def py_assign(tok):
         """return an assign function"""
@@ -230,10 +235,17 @@ def make_py(token, local: bool = False):
         """creates a Python if statement"""
         # TODO: support elif...
 
-        o = "if (" + pythonise(tok["cond"]) + ") {\n" + pythonise(tok["then"]) + "\n}" + \
-            (("\nelse {\n" + pythonise(tok["else"]) + "\n}") if tok.get("else", None) else "")
+        if_blck = "if (" + pythonise(tok["cond"]) + ") {\n" + pythonise(tok["then"]) + "\n}"
 
-        return o
+
+        elif_blcks = ""
+
+        else_blck = (("else {\n" + pythonise(tok["else"]) + "\n}") if tok.get("else", None) else "")
+
+        for el in tok["elifs"]:
+            elif_blcks = elif_blcks + "elif (" + pythonise(el["cond"]) + ") {\n" + pythonise(el["then"]) + "\n}"
+
+        return if_blck + elif_blcks + else_blck
 
     def py_while(tok):
         """while loop, returns python while loop!"""

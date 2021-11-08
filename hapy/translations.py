@@ -1,7 +1,7 @@
 
 kws_source = {
     "in": "if",
-    # "inda": "if",
+    "kokuma": "elif",
     "then": "then",
     "indai": "while",
     "ma": "for",
