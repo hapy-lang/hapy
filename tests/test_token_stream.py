@@ -1,7 +1,7 @@
 import unittest
 
-from input_stream import InputStream
-from token_stream import TokenStream
+from hapy.input_stream import InputStream
+from hapy.token_stream import TokenStream
 
 
 class TestTokenStream(unittest.TestCase):
@@ -137,7 +137,7 @@ class TestTokenStream(unittest.TestCase):
 
         ts = TokenStream(stream)
 
-        expected = {"type": "kw", "value": "for"};
+        expected = {"type": "kw", "value": "for"}
 
         actual = ts.read_next()
 
@@ -145,4 +145,8 @@ class TestTokenStream(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    # NOTE: You have to set the env to "set HAPY_LANG=eng" if you want to
+    # test these in english.
+
+    # we should probably create a Hausa version of the tests :)
     unittest.main()

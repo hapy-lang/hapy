@@ -1,7 +1,7 @@
 """ Test InputStream class. Thank you Jesus!
 """
 import unittest
-from input_stream import InputStream
+from hapy.input_stream import InputStream
 
 
 class TestInputStream(unittest.TestCase):

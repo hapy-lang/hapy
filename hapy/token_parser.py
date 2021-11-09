@@ -5,6 +5,7 @@ from: https://lisperator.net/pltut/parser/the-parser
 import json
 from .token_stream import TokenStream
 from .input_stream import InputStream
+from .translations import keywords, operator_words
 
 FALSE = {"type": "bool", "value": False}
 PASS = {"type": "var", "value": "pass"}
@@ -19,35 +20,33 @@ def any_fulfill(collection, condition):
         index += 1
     return a
 
-
 def parse(input: TokenStream):
     """parse input to AST tokens"""
 
     PRECEDENCE = {
         "=": 1,
         ":": 1,
-        "=": 1,  # not 100% sure why this has 1 precedence :p
-        "or": 2,
-        "and": 3,
+        operator_words[input.settings["lang"]]["is"]: 1,
+        operator_words[input.settings["lang"]]["or"]: 2,
+        operator_words[input.settings["lang"]]["and"]: 3,
         "<": 7,
         ">": 7,
         "<=": 7,
         ">=": 7,
         "==": 7,
         "!=": 7,
-        "not": 7,
+        operator_words[input.settings["lang"]]["not"]: 7,
         "+": 10,
         "-": 10,
-        "plus": 10,
-        "minus": 10,
+        operator_words[input.settings["lang"]]["plus"]: 10,
+        operator_words[input.settings["lang"]]["minus"]: 10,
         "*": 20,
         "/": 20,
         "%": 20,
-        "times": 20,
-        "dividedby": 20,
+        operator_words[input.settings["lang"]]["times"]: 20,
+        operator_words[input.settings["lang"]]["dividedby"]: 20,
         # because self.name is one of the strongest bonds
-        "is": 20,
-        "in": 20,
+        operator_words[input.settings["lang"]]["in"]: 20,
         ".": 30,
     }
     expecting_non_dict_block = False
@@ -108,10 +107,10 @@ def parse(input: TokenStream):
         tok = is_op(None)  # thank you Jesus :]
         # tbh, I'm not 100% sure what's going on here, but I'll find out!
         binary_type = {  # noqa: F841
-            "is": "assign",
+            operator_words[input.settings["lang"]]["is"]: "assign",
             "=": "assign",
             ".": "access",
-            "in": "membership",
+            operator_words[input.settings["lang"]]["in"]: "membership",
             ":": "dict-elem"  # Wuta added this line.
         }
         if tok:
@@ -176,14 +175,28 @@ def parse(input: TokenStream):
         """
 
         block_kw("set")
-        skip_kw("if")
+        skip_kw(keywords[input.settings["lang"]]["if"])
         cond = parse_expression()
         # if (!is_punc("{")) skip_kw("then"); REASON: no then in python :]
         # sha, I can add it tho...
         then = parse_expression()
         ret = {"type": "if", "cond": cond, "then": then}
-        if is_kw("else"):
+
+        ret["elifs"] = []
+
+        while is_kw(keywords[input.settings["lang"]]["elif"]):
             block_kw("set")
+            skip_kw(keywords[input.settings["lang"]]["elif"])
+            elif_cond = parse_expression()
+            elif_then = parse_expression()
+            elif_tok = {"type": "elif", "cond": elif_cond, "then": elif_then}
+            ret["elifs"].append(elif_tok)
+
+        if is_kw(keywords[input.settings["lang"]]["else"]):
+            block_kw("set")
+            # TODO: this should be skip_kw("else") :)
+            # but I'm afraid it might cause problems :(
+
             input.next()
             ret["else"] = parse_expression()
 
@@ -206,7 +219,7 @@ def parse(input: TokenStream):
         '''
         block_kw("set")
 
-        skip_kw("while")
+        skip_kw(keywords[input.settings["lang"]]["while"])
 
         cond = parse_expression()
 
@@ -225,7 +238,7 @@ def parse(input: TokenStream):
         """ read a for-loop expression """
         block_kw("set")
 
-        skip_kw("for")
+        skip_kw(keywords[input.settings["lang"]]["for"])
 
         header = parse_expression()  # the iterator...
 
@@ -239,7 +252,7 @@ def parse(input: TokenStream):
         """stuff"""
         block_kw("set")
 
-        skip_kw("def")
+        skip_kw(keywords[input.settings["lang"]]["def"])
 
         function_name = parse_varname()
 
@@ -277,7 +290,7 @@ def parse(input: TokenStream):
         """
         # skip 'class' first! Thank you Jesus!
 
-        skip_kw("class")
+        skip_kw(keywords[input.settings["lang"]]["class"])
 
         # next, get the class name
         classname = parse_varname()
@@ -286,8 +299,8 @@ def parse(input: TokenStream):
 
         # if the next token is 'inherits' then get parent class name!...
         # thank you Jesus!
-        if is_kw("inherits"):
-            skip_kw("inherits")
+        if is_kw(keywords[input.settings["lang"]]["inherits"]):
+            skip_kw(keywords[input.settings["lang"]]["inherits"])
             # get parent class name...
             parent_classname = parse_varname()
             ret["inherits"] = parent_classname
@@ -339,7 +352,7 @@ def parse(input: TokenStream):
         should see an import statement and get the name of the imported
         module and return it. That's all for now...
         """
-        skip_kw("import")
+        skip_kw(keywords[input.settings["lang"]]["import"])
 
         return {"type": "import", "module": parse_modulename()}
 
@@ -348,14 +361,14 @@ def parse(input: TokenStream):
         should see an import statement and get the name of the imported
         module and return it. That's all for now...
         """
-        skip_kw("return")
+        skip_kw(keywords[input.settings["lang"]]["return"])
 
         return {"type": "return", "expression": parse_expression()}
 
     def parse_class_use():
         """returns the attributes that this class uses"""
 
-        skip_kw("use")
+        skip_kw(keywords[input.settings["lang"]]["use"])
 
         d = parse_atom()
 
@@ -367,7 +380,7 @@ def parse(input: TokenStream):
         """
         reads 'has prop_name'
         """
-        skip_kw("has")
+        skip_kw(keywords[input.settings["lang"]]["has"])
 
         ret = {"type": "class_property"}
 
@@ -386,7 +399,7 @@ def parse(input: TokenStream):
         return p
 
     def parse_bool():
-        return {"type": "bool", "value": input.next()["value"] == "True"}
+        return {"type": "bool", "value": input.next()["value"] == keywords[input.settings["lang"]]["True"]}
 
     def maybe_call(expr):
         expr = expr()
@@ -417,25 +430,25 @@ def parse(input: TokenStream):
             # parse lists here...
             if is_punc("["):
                 return parse_list()
-            if is_kw("if"):
+            if is_kw(keywords[input.settings["lang"]]["if"]):
                 return parse_if()
-            if is_kw("while"):
+            if is_kw(keywords[input.settings["lang"]]["while"]):
                 return parse_while()
-            if is_kw("for"):
+            if is_kw(keywords[input.settings["lang"]]["for"]):
                 return parse_forloop()
-            if is_kw("class"):
+            if is_kw(keywords[input.settings["lang"]]["class"]):
                 return parse_class()
-            if is_kw("import"):
+            if is_kw(keywords[input.settings["lang"]]["import"]):
                 return parse_import()
-            if is_kw("return"):
+            if is_kw(keywords[input.settings["lang"]]["return"]):
                 return parse_return()
-            if is_kw("has"):
+            if is_kw(keywords[input.settings["lang"]]["has"]):
                 return parse_classprop()
-            if is_kw("use"):
+            if is_kw(keywords[input.settings["lang"]]["use"]):
                 return parse_class_use()
-            if is_kw("True") or is_kw("False"):
+            if is_kw(keywords[input.settings["lang"]]["True"]) or is_kw(keywords[input.settings["lang"]]["False"]):
                 return parse_bool()
-            if is_kw("def"):
+            if is_kw(keywords[input.settings["lang"]]["def"]):
                 return parse_function()
 
             # NOTE: If you don't handle tokens they will raise an error
@@ -490,7 +503,7 @@ def parse(input: TokenStream):
                 # but of course, if it doesn't make sense it won't work.
                 # the next token may not be ;...
                 skip_punc(";")
-        return {"type": "prog", "prog": prog}
+        return {"type": "prog", "prog": prog, "settings": input.settings}
 
     # the first thing...
     return parse_toplevel()
@@ -514,7 +527,12 @@ if __name__ == "__main__":
 
     #     hello();
     # """
-    code = """dict({1:1, 2:2, 3:3});"""
+    code = """
+            #! lang=hausa
+        in (Gaskiya) {
+            print(2);
+        }
+         """
     inputs = InputStream(code)
     tokens = TokenStream(inputs)
     ast = parse(tokens)

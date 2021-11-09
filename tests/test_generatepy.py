@@ -1,10 +1,10 @@
 """ Test InputStream class. Thank you Jesus!
 """
 import unittest
-from input_stream import InputStream
-from token_stream import TokenStream
-from token_parser import parse
-from generate_py import make_py
+from hapy.input_stream import InputStream
+from hapy.token_stream import TokenStream
+from hapy.token_parser import parse
+from hapy.generate_py import make_py
 
 # TODO: ADD MORE TESTS OOO! TEST OTHER CONSTRUCTS!
 class TestGeneratePy(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """age = 20;\nage > 10"""
+        expected = """age = 20;\n(age > 10)"""
 
         actual = make_py(ast)
 
@@ -36,7 +36,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """bola_age = 20;\ntolu_age = 30 - 10"""
+        expected = """bola_age = 20;\ntolu_age = (30 - 10)"""
 
         actual = make_py(ast)
 

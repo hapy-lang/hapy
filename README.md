@@ -1,3 +1,5 @@
+![Hapy Logo](https://i.ibb.co/qY10MRp/Whats-App-Image-2021-11-03-at-18-03-23.jpg)
+
 # Hapy - Write Python in Hausa with braces!
 
 Hapy is a simple programming language that uses Hausa vocabulary and compiles to Python. Originally as a final year school project.
@@ -5,6 +7,9 @@ Hapy is a simple programming language that uses Hausa vocabulary and compiles to
 ## Installation
 
 Hapy can be installed using pip (pre-release versions)
+
+**note:** Hapy is still in development so it might change *a lot* before full release. You can still join us for the ride!
+
 
 ```
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ Hapy
@@ -21,24 +26,24 @@ All these commands are to be run in the command line:
 
 `hapy --version` or `hapy -v` - prints the installed Hapy version
 
-`hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`.
+`hapy` or `hapy repl` - launches the REPL. Exit via `exit()`, or `Ctrl-C`. Pass `--english` to use Hapy english vocabulary.
 
 `hapy <filename>` - execute a script. Hapy uses `.hapy` file extension. For example: `hapy lagbaja.hapy`. Pass `--compile-only` to just print the compiled script or you can pass `--save` to save the compiled Python in a file.
 
 `hapy run <filename>` - same as above.
 
-`hapy do "<code to evaluate>"` - compiles and executes Hapy code as a string. Pass `--compile-only` to skip execution.
+`hapy do "<code to evaluate>"` - compiles and executes Hapy code as a string. Pass `--compile-only` to skip execution or pass `--english`/`-e` to use Hapy english vocabulary.
 
 More options on the way :)
 
 ## Example
-> Let's say 'kira' is `def` keyword in Hausa and 'buga' is the `print` keyword.
+> Let's say 'aiki' is `def` keyword in Hausa and 'buga' is the `print` keyword.
 Sample Hapy code
 ```python
     # example.hapy
 
     # wannan sharhi ne
-    kira muje(){
+    aiki muje(){
         buga("Let's Goooooo");
     };
 
@@ -62,6 +67,46 @@ On it's way...
 ## Documentation
 
 on it's way...
+
+### Hausa -> English  Dictionary
+`key (Hausa): value (English)`
+
+```python
+keywords = {
+    "in": "if",
+    "then": "then",
+    "indai": "while",
+    "ma": "for",
+    "karo": "import",
+    "iri": "class",
+    "yanada": "has",
+    "gada": "inherits",
+    "anfani": "use",
+    "wuce": "pass",
+    "daga": "from",
+    "imbahakaba": "else",
+    "cikin": "in",
+    "Babu": "None",
+    "dawo": "return",
+    "aiki": "def",
+    "Gaskiya": "True",
+    "Karya": "False",
+
+}
+
+operator_words = {
+    "ba": "not",
+    "da": "and",
+    "ko": "or",
+    "shine": "is",
+    "cikin": "in",
+    "of": "of",
+    "times": "times",
+    "hada": "plus",
+    "raba": "dividedby",
+    "chire": "minus"
+}
+```
 
 ## Goals
 

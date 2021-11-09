@@ -1,6 +1,6 @@
 """
 I'm thinking of gathering all the things into one function...
-LOL Not very good idea. 
+LOL Not very good idea.
 """
 from .input_stream import InputStream
 from .token_stream import TokenStream
@@ -53,36 +53,55 @@ if __name__ == '__main__':
         return 2 * self.length + 2 * self.width;
     };
 
-};
+};"""
 
-class Square inherits Rectangle {
-    has length;
-
-    use Rectangle(length, length);
-
-    def when_created() {};
-};
-
-sq = Square(4);
-
-print(sq.area());
-
-class Cube inherits Square {
-
-    def surface_area() {
-        face_area = super().area();
-        return face_area * 6;
-    };
-
-    def volume() {
-        face_area = super().area();
-        return face_area * self.length;
-    };
-};
-
-c = {"class": Cube(3)};
-
-print(c.get("class"));
+    code = """
+            #! lang=hausa
+                in (True) {
+                    print(1);
+                } kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                }kokuma (False) {
+                    print(2);
+                } imbahakaba {
+                    print(3)
+                }
     """
 
-    run(transpile(code, no_indent=False))
+# class Square inherits Rectangle {
+#     has length;
+
+#     use Rectangle(length, length);
+
+#     def when_created() {};
+# };
+
+# sq = Square(4);
+
+# print(sq.area());
+
+# class Cube inherits Square {
+
+#     def surface_area() {
+#         face_area = super().area();
+#         return face_area * 6;
+#     };
+
+#     def volume() {
+#         face_area = super().area();
+#         return face_area * self.length;
+#     };
+# };
+
+# c = {"class": Cube(3)};
+
+# print(c.get("class"));
+#     """
+
+    print(transpile(code, no_indent=False))

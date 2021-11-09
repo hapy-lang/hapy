@@ -1,7 +1,7 @@
 import unittest
-from token_parser import parse
-from input_stream import InputStream
-from token_stream import TokenStream
+from hapy.token_parser import parse
+from hapy.input_stream import InputStream
+from hapy.token_stream import TokenStream
 
 
 class TestParser(unittest.TestCase):
