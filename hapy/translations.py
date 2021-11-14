@@ -18,7 +18,7 @@ kws_source = {
     "cikin": "in",
     "Babu": "None",
     "dawo": "return",
-    "aiki": "def",
+    "ayyana": "def",
     "Gaskiya": "True",
     "Karya": "False",
     # TODO: translate these!
