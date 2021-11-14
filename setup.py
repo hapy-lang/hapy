@@ -9,7 +9,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 # default value, so what's the point of a VERSION.txt file?
 # well, other's can access it too!
 
-# VERSION = "0.2.0"
+# VERSION = "0.5.0"
 # ROOT_DIR = Path(__file__).parent
 
 # if __file__:
@@ -31,15 +31,11 @@ setup(
     install_requires=[requirements],
     include_package_data=True,
     python_requires='>=3.7',
-    setup_requires=[
-        "wheel"
-    ],
+    setup_requires=["wheel"],
     classifiers=[
         "Programming Language :: Python :: 3.8",
-        "Operating System :: OS Independent",
-        "Intended Audience :: Education",
-        "Topic :: Education",
-        "Topic :: Software Development"
+        "Operating System :: OS Independent", "Intended Audience :: Education",
+        "Topic :: Education", "Topic :: Software Development"
     ],
     entry_points='''
         [console_scripts]
