@@ -43,7 +43,6 @@ ops_source = {
 builtin_funcs = {
     "__farada__": "__startwith__",
     "__donnunawa__": "__toshow__",
-    # "when_string": "when_string",
     "nuna": "print",
     "iri": "type",
     "tsakanin": "range",

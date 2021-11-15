@@ -43,7 +43,7 @@ if __name__ == '__main__':
     has length;
     has width;
 
-    def when_created() {};
+    def __startwith__() {};
 
     def area() {
         return self.length * self.width;
@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
 #     use Rectangle(length, length);
 
-#     def when_created() {};
+#     def __startwith__() {};
 # };
 
 # sq = Square(4);

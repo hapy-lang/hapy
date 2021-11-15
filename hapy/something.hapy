@@ -5,7 +5,7 @@ class Person {
     has age = 0;
     has has_genes = True;
 
-    def when_created() {
+    def __startwith__() {
         print("Person was created!")
     };
 
@@ -22,7 +22,7 @@ class Rectangle {
     has length;
     has width;
 
-    def when_created() {};
+    def __startwith__() {};
 
     def area() {
         return self.length * self.width;
@@ -39,7 +39,7 @@ class Square inherits Rectangle {
 
     use Rectangle(length, length);
 
-    def when_created() {};
+    def __startwith__() {};
 };
 
 sq = Square();
@@ -49,7 +49,7 @@ print("area of sq l=20 => ", sq.area());
 class Cube inherits Square {
 
     # don't add the initializer if you aren't initializing anything!
-    # def when_created() {};
+    # def __startwith__() {};
 
     def surface_area() {
         face_area = super().area();
