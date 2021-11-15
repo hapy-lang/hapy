@@ -79,12 +79,13 @@ on it's way...
 
 ```python
 keywords = {
-    "in": "if",
+     "in": "if",
     "kokuma": "elif",
     "then": "then",
     "indai": "while",
     "ma": "for",
     "karo": "import",
+    "tsarin": "class",  #Changed from irin to tsarin(structure) in 0.5.0
     "yanada": "has",
     "gada": "inherits",
     "anfani": "use",
@@ -103,22 +104,21 @@ operators_words = {
     "ba": "not",
     "da": "and",
     "ko": "or",
-    "shine": "is",
+    "shine": "=",
     "cikin": "in",
     "of": "of",
     "ba cikin": "not in",
     "is equal": "is equal",
     "is not equal": "is not equal",
-    "times": "times",
-    "hada": "plus",
-    "raba": "dividedby",
-    "chire": "minus"
+    "times": "*",
+    "hada": "+",
+    "raba": "/",
+    "chire": "-"
 }
 
 builtin_functions = {
-    "when_created": "when_created",
-    "when_printed": "when_printed",
-    "when_string": "when_string",
+    "__farada__": "__init__",
+    "__donnunawa__": "__repr__",
     "nuna": "print",
     "iri": "type",
     "tsakanin": "range",
