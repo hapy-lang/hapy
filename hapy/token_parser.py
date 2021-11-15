@@ -5,7 +5,7 @@ from: https://lisperator.net/pltut/parser/the-parser
 import json
 from .token_stream import TokenStream
 from .input_stream import InputStream
-from .translations import keywords, operator_words
+from .translations import keywords, operator_words, builtin_functions
 
 FALSE = {"type": "bool", "value": False}
 PASS = {"type": "var", "value": "pass"}
@@ -258,7 +258,13 @@ def parse(input: TokenStream):
 
         ret = {"name": function_name}
 
-        if function_name["value"].startswith("when_"):
+        class_special_methods = [
+            builtin_functions[input.settings["lang"]]["__startwith__"],
+            builtin_functions[input.settings["lang"]]["__toshow__"],
+            # builtin_functions[input.settings["lang"]]["__string__"]
+        ]
+
+        if function_name["value"] in class_special_methods:
             # meaning this is a class special method
             # like __init__ in python...
             ret["type"] = "class_special_method"

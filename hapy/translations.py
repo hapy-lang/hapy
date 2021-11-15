@@ -21,7 +21,6 @@ kws_source = {
     "ayyana": "def",
     "Gaskiya": "True",
     "Karya": "False",
-    # TODO: translate these!
 }
 
 ops_source = {
@@ -42,9 +41,9 @@ ops_source = {
 
 # TODO: add functions here!
 builtin_funcs = {
-    "when_created": "when_created",
-    "when_printed": "when_printed",
-    "when_string": "when_string",
+    "__farada__": "__startwith__",
+    "__donnunawa__": "__toshow__",
+    # "when_string": "when_string",
     "nuna": "print",
     "iri": "type",
     "tsakanin": "range",
@@ -56,6 +55,7 @@ builtin_funcs = {
     "koyar": "help",
     "id": "id",
     "lissafta": "eval",
+    "ni": "self"
 }
 
 keywords = {}
