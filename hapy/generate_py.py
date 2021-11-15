@@ -288,12 +288,6 @@ def make_py(token, local: bool = False):
             elif t["name"]["value"] == builtin_functions[settings["lang"]]["__toshow__"]:
                 init += py_function(
                     t, class_method=True, custom_name='__repr__') + ";\n"
-            # elif t["name"]["value"] == builtin_functions[settings["lang"]]["when_printed"]:
-            #     # the __repr__ method
-
-            #     # TODO: might remove this since its sometimes redundant???
-            #     init += py_function(
-            #         t, class_method=True, custom_name='__repr__') + ";\n"
             else:
                 # if we don't recognize the special method...
                 init += "#invalid special method\n"

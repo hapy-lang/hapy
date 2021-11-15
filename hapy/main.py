@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
 #           use Person(name);
 
-#           def when_created() {
+#           def __startwith__() {
 #               print("Man was created!")
 #           };
 
@@ -46,25 +46,6 @@ if __name__ == "__main__":
         } imbahakaba {
             printo("Age is less!");
         };
-    """
-
-    code_eng = """
-        #! lang=eng
-        class Man {
-            has name;
-
-            def when_created() {
-                print("Hello! Man created");
-            };
-
-            def when_printed() {
-                return ("My name is " + self.name);
-            };
-        };
-
-        usman = Man(name="Usman Ahmad");
-
-        print(usman);
     """
 
     run2(transpile(code))
