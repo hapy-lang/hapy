@@ -14,6 +14,7 @@ installed_version = get_distribution("hapy").version
 
 VERSION = expected_version or installed_version or "N/A"
 
+
 def check_commands(command: str) -> None:
     res = True
     if command == "clear":
@@ -39,8 +40,15 @@ def check_commands(command: str) -> None:
     return res
 
 
-@click.group(cls=DefaultGroup, default='repl', default_if_no_args=True, invoke_without_command=True)
-@click.option('-v', '--version', 'version', is_flag=True, help="Print the Hapy version")
+@click.group(cls=DefaultGroup,
+             default='repl',
+             default_if_no_args=True,
+             invoke_without_command=True)
+@click.option('-v',
+              '--version',
+              'version',
+              is_flag=True,
+              help="Print the Hapy version")
 def cli(version):
     """This is the Hapy programming language command-line tool.
 	- Hapy CLI can execute .hapy files
@@ -57,9 +65,17 @@ def cli(version):
 
 @cli.command()
 @click.argument('filename', type=click.Path(exists=True))
-@click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
+@click.option('-c',
+              '--compile-only',
+              'compile_only',
+              is_flag=True,
+              help="Compiles the Hapy code only,\
 	does not execute")
-@click.option('-s', '--save', 'save', is_flag=True, help="Should save compiled Python to file")
+@click.option('-s',
+              '--save',
+              'save',
+              is_flag=True,
+              help="Should save compiled Python to file")
 def run(filename, compile_only, save):
     """Execute Hapy files
 	Can either
@@ -83,7 +99,8 @@ def run(filename, compile_only, save):
     # if user wants to save file!
     if save:
         new_filename = filename.rstrip(".hapy") + ".ha.py"
-        click.secho("\n" +"[i]: Saved file as %s" % new_filename + "\n", fg="green")
+        click.secho("\n" + "[i]: Saved file as %s" % new_filename + "\n",
+                    fg="green")
         with open(new_filename, "w") as py_file:
             py_file.write(compiled_python)
 
@@ -94,12 +111,21 @@ def run(filename, compile_only, save):
         # execute the compiled code
         run2(compiled_python)
 
+
 # Inline compilation
 @cli.command()
 @click.argument('code', type=str)
-@click.option('-c', '--compile-only', 'compile_only', is_flag=True, help="Compiles the Hapy code only,\
+@click.option('-c',
+              '--compile-only',
+              'compile_only',
+              is_flag=True,
+              help="Compiles the Hapy code only,\
 	does not execute")
-@click.option('-e', '--english', 'english', is_flag=True, help="Use Hapy English instead of Hausa")
+@click.option('-e',
+              '--english',
+              'english',
+              is_flag=True,
+              help="Use Hapy English instead of Hausa")
 def do(code, compile_only, english):
     """Compile Hapy from line of code"""
     compiled_python = ""
@@ -125,14 +151,17 @@ def do(code, compile_only, english):
                     if out is not None:
                         click.echo(out, nl=False)
                 except Exception as e:
-                        click.echo(f"Error: {e}")
+                    click.echo(f"Error: {e}")
 
-@cli.command(context_settings=dict(
-    ignore_unknown_options=True,
-    allow_extra_args=True
-))
+
+@cli.command(context_settings=dict(ignore_unknown_options=True,
+                                   allow_extra_args=True))
 @click.pass_context
-@click.option('-e', '--english', 'english', is_flag=True, help="Use Hapy English instead of Hausa")
+@click.option('-e',
+              '--english',
+              'english',
+              is_flag=True,
+              help="Use Hapy English instead of Hausa")
 def repl(ctx, english):
     """the Hapy REPL (interactive programming environment)"""
 
@@ -159,14 +188,13 @@ def repl(ctx, english):
             elif a == "-s" or a == "--save":
                 save = True
 
-        ctx.invoke(run, filename=filename, compile_only=compile_only, save=save)
+        ctx.invoke(run,
+                   filename=filename,
+                   compile_only=compile_only,
+                   save=save)
         return
 
-    click.secho(
-        "Welcome to the Hapy REPL!"
-        ,fg="green"
-    )
-
+    click.secho("Welcome to the Hapy REPL!", fg="green")
 
     if (english):
         # tell Hapy compiler that it should listen for English vocabulary
@@ -178,9 +206,10 @@ def repl(ctx, english):
         # TODO: write this is HAUSA
         click.secho("-- Language is HAUSA --")
 
-
-    click.echo("\nType a command and just dey go!\nUse exit() or Ctrl+C to close")
-    click.secho("\n- Type 'show modules' to list all modules you can use.\n", fg="blue")
+    click.echo(
+        "\nType a command and just dey go!\nUse exit() or Ctrl+C to close")
+    click.secho("\n- Type 'show modules' to list all modules you can use.\n",
+                fg="blue")
 
     try:
         while True:
@@ -211,13 +240,12 @@ def repl(ctx, english):
                             in_2 = input("... ")
                             # TODO: find a better way of checking if line ends in
                             # "}" or "};"
-                            if in_2.endswith("}") or in_2.endswith("};"):
+
+                            if "{" in in_2 or "}" in in_2:
                                 code += "\n"
-                                closing_brackets += 1
-                            # if there are more brackets...
-                            if in_2.endswith("{"):
-                                code += "\n"
-                                open_brackets += 1
+                                closing_brackets += in_2.count("}")
+                                open_brackets += in_2.count("{")
+
                             code += in_2
 
                             # check if code ends in 2 \n line brakes
