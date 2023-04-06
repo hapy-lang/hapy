@@ -67,7 +67,7 @@ Python output after running `hapy example.hapy --save`
 
 ## Contributing
 
-On it's way...
+OH MY GOSH 😂😭, WE'RE SO DESPERATE FOR CONTRIBUTIONS THAT WE'RE LITERALLY BEGGING FOR PULL REQUESTS 🙏🏼💻! WE'RE SERIOUSLY ABOUT TO START CRYING OVER HERE. PLEASE, PLEASE, PLEASE SEND A PR AND MAKE OUR DAY. WE'LL LOVE YOU FOREVER AND EVER ❤️🤗.
 
 ## Documentation
 
@@ -160,7 +160,7 @@ On it's way...
 
 ## Noticed something wrong with Hapy or have a suggestion?
 
-Please feel free to [email us](core-team.435caa94544f383ce9a89fab69dafa5b.show-sender@streams.zulipchat.com) or create an issue on the [github](https://github.com/hapy-lang/hapy/issues/new)
+SEND A PR MY BROTHA/SISTA or create an issue on the [github](https://github.com/hapy-lang/hapy/issues/new)
 
 ## Other projects
 
