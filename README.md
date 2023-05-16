@@ -1,4 +1,4 @@
-![Hapy Logo](https://i.ibb.co/qY10MRp/Whats-App-Image-2021-11-03-at-18-03-23.jpg)
+![Hapy Logo](https://i.ibb.co/XW5pQG1/hapy-logo-1-1.jpg)
 
 # Hapy - Write Python in Hausa with braces!
 
@@ -182,3 +182,15 @@ On it's way...
 ## License
 
 Hapy is released under the [MIT License](https://opensource.org/licenses/MIT)
+
+## Reference
+
+If you found Hapy useful enought to cite, please cite using the following BibTeX:
+```
+@software{segunlean2021,
+  author = {Segun-Lean, Emmanuel and Wuta, Shugaba},
+  title = {Hapy: Hausa Programming Language},
+  month = December,
+  year = 2021,
+  url = {https://github.com/hapy-lang/hapy}
+}
