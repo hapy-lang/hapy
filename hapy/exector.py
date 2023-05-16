@@ -1,4 +1,4 @@
-"""execute python from string! thank you Jesus!"""
+"""execute python from string!"""
 
 import sys
 import traceback

@@ -1,8 +1,6 @@
 """
 generate the python code from AST tree
-AST -> Abstract Syntax Tree... thank you Jesus!
-
-THIS FILE IS FULL OF GOD'S GRACE AND MAGIC CODE :)))
+AST -> Abstract Syntax Tree...
 """
 
 import json

@@ -173,7 +173,6 @@ def repl(ctx, english):
     # join all the arguments
     all_args = " ".join(ctx.args)
     # only match arguments ending in '.hapy' for now
-    # thank you Jesus!
     matched = re.findall(r'([a-zA-Z\./]*\.hapy)', all_args)
     # actually, loop through the args and find all applicable arguments/options
     if len(list(matched)) > 0:

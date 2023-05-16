@@ -51,8 +51,6 @@ def parse(input: TokenStream):
     }
     expecting_non_dict_block = False
 
-    # the program first level! thank you Jesus!
-
     def block_kw(operation: str):
         nonlocal expecting_non_dict_block
         if operation.lower() == "get":
@@ -104,7 +102,7 @@ def parse(input: TokenStream):
         input.croak(msg % json.dumps(input.peek()))
 
     def maybe_binary(left, my_prec):
-        tok = is_op(None)  # thank you Jesus :]
+        tok = is_op(None)
         # tbh, I'm not 100% sure what's going on here, but I'll find out!
         binary_type = {  # noqa: F841
             operator_words[input.settings["lang"]]["is"]: "assign",
@@ -211,7 +209,7 @@ def parse(input: TokenStream):
         """ parse while"""
         block_kw("set")
 
-        '''Thank you Jesus!!!
+        '''
         Basically this creates a block of code. However a dictionary sysntax is quite similar "{}".
         So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block.
 
@@ -272,7 +270,7 @@ def parse(input: TokenStream):
             ret["type"] = "function"
 
         ret = {
-            # get variable name, that should be the next thing! Thank you Jesus
+            # get variable name, that should be the next thing!
             # we are using parse_expression because the args could actually
             # be expressions like assingment def foo(b=1) {...}
             **ret,
@@ -291,10 +289,8 @@ def parse(input: TokenStream):
         4. Look for instance properties.
         5. Look for special class methods... constructor, etc...
         5. Collect all and send back dict...
-
-        thank you Jesus!
         """
-        # skip 'class' first! Thank you Jesus!
+        # skip 'class' first!
 
         skip_kw(keywords[input.settings["lang"]]["class"])
 
@@ -304,7 +300,6 @@ def parse(input: TokenStream):
         ret = {"type": "class", "name": classname}
 
         # if the next token is 'inherits' then get parent class name!...
-        # thank you Jesus!
         if is_kw(keywords[input.settings["lang"]]["inherits"]):
             skip_kw(keywords[input.settings["lang"]]["inherits"])
             # get parent class name...
@@ -412,7 +407,6 @@ def parse(input: TokenStream):
         return parse_call(expr) if is_punc("(") else expr
 
     def parse_atom():
-        """ success, thank you Jesus! """
         def doer():
 
             if is_punc("("):
@@ -470,7 +464,7 @@ def parse(input: TokenStream):
         return maybe_call(doer)
 
     def parse_list():
-        # TODO: I need to work on this for Python! Thank you Jesus!
+        # TODO: I need to work on this for Python!
         elems = delimited("[", "]", ",", parse_atom)
         return {"type": "list", "elements": elems}
 
@@ -483,7 +477,7 @@ def parse(input: TokenStream):
     def parse_prog():
         nonlocal expecting_non_dict_block
         expecting_non_dict_block = False
-        # TODO: I need to work on this for Python! Thank you Jesus!
+        # TODO: I need to work on this for Python!
         prog = delimited("{", "}", ";", parse_expression)
         if len(prog) == 0:
             # return FALSE # TODO: maybe just return pass;

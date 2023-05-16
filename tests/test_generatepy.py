@@ -1,4 +1,4 @@
-""" Test InputStream class. Thank you Jesus!
+""" Test InputStream class.
 """
 import unittest
 from hapy.input_stream import InputStream

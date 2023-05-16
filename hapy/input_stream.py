@@ -1,5 +1,4 @@
 """
-Input Stream. Oh LORD Help me! Thank you Jesus!
 https://lisperator.net/pltut/parser/input-stream
 
 funcs:

@@ -28,8 +28,7 @@ class TokenStream(InputStream):
         self.input = _input
 
         # these keywords would go somewhere else!
-        # NOTE! Wow! Removing a callable kw from keywords removed a bug! thank
-        # you Jesus
+        # NOTE! Wow! Removing a callable kw from keywords removed a bug!
         # self.keywords = " if then while import from else in None return def
         # list True\
         # False "
