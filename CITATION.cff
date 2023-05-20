@@ -1,0 +1,24 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: 'Hapy: Hausa Programming Language'
+message: >-
+  Please cite Hapy if you use it in your projects or in your
+  research. Thanks!
+type: software
+authors:
+  - given-names: Emmanuel
+    family-names: Segun-Lean
+    email: emmanuel.segunlean@proton.me
+  - given-names: Shugaba
+    family-names: Wuta
+repository-code: 'https://github.com/hapy-lang/hapy'
+url: 'https://hapy.world'
+keywords:
+  - hausa
+  - programming language
+  - computing education
+license: MIT
+version: 0.5.1
+date-released: '2021-11-28'

@@ -212,8 +212,6 @@ def parse(input: TokenStream):
         '''
         Basically this creates a block of code. However a dictionary sysntax is quite similar "{}".
         So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block.
-
-        Lean khan I have done it!!!!!
         '''
         block_kw("set")
 
