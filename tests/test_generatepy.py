@@ -9,7 +9,7 @@ from hapy.generate_py import make_py
 # TODO: ADD MORE TESTS OOO! TEST OTHER CONSTRUCTS!
 class TestGeneratePy(unittest.TestCase):
     def test_binary_ops_1(self):
-        """ test the binary ops bro """
+        """test the binary ops bro"""
         code = """
 				age = 20;
 				age > 10;
@@ -26,8 +26,9 @@ class TestGeneratePy(unittest.TestCase):
         self.assertEqual(expected, actual, "This is a binary operator!")
 
     def test_binary_ops_words(self):
-        """ test the binary ops bro """
+        """test the binary ops bro"""
         code = """
+        #! lang=eng
 				bola_age is 20;
 				tolu_age is 30 minus 10;
 				"""

@@ -12,13 +12,14 @@ PASS = {"type": "var", "value": "pass"}
 
 
 def any_fulfill(collection, condition):
-    """checks if any element of collection returns true for condition """
+    """checks if any element of collection returns true for condition"""
     a = False
     index = 0
     while not a and index < len(collection):
         a = condition(collection[index])
         index += 1
     return a
+
 
 def parse(input: TokenStream):
     """parse input to AST tokens"""
@@ -60,18 +61,15 @@ def parse(input: TokenStream):
 
     def is_punc(ch):
         tok = input.peek()
-        return tok and tok["type"] == "punc" and (not ch or tok["value"]
-                                                  == ch) and tok
+        return tok and tok["type"] == "punc" and (not ch or tok["value"] == ch) and tok
 
     def is_kw(kw):
         tok = input.peek()
-        return tok and tok["type"] == "kw" and (not kw
-                                                or tok["value"] == kw) and tok
+        return tok and tok["type"] == "kw" and (not kw or tok["value"] == kw) and tok
 
     def is_op(op):
         tok = input.peek()
-        return tok and tok["type"] == "op" and (not op
-                                                or tok["value"] == op) and tok
+        return tok and tok["type"] == "op" and (not op or tok["value"] == op) and tok
 
     def skip_punc(ch):
         if is_punc(ch):
@@ -82,21 +80,22 @@ def parse(input: TokenStream):
             # something wrong with the syntax :|
             if ch == ";":
                 return unexpected(
-                    "Check your syntax! You might have made an error at %s")
+                    "Check your syntax! You might have made an error at %s"
+                )
 
-            input.croak(f"Expecting punctuation got: \"{ch}\"")
+            input.croak(f'Expecting punctuation got: "{ch}"')
 
     def skip_kw(kw):
         if is_kw(kw):
             input.next()
         else:
-            input.croak(f"Expecting keyword got: \"{kw}\"")
+            input.croak(f'Expecting keyword got: "{kw}"')
 
     def skip_op(op):
         if is_op(op):
             input.next()
         else:
-            input.croak(f"Expecting operator got: \"{op}\"")
+            input.croak(f'Expecting operator got: "{op}"')
 
     def unexpected(msg="unexpected token: %s "):
         input.croak(msg % json.dumps(input.peek()))
@@ -109,7 +108,7 @@ def parse(input: TokenStream):
             "=": "assign",
             ".": "access",
             operator_words[input.settings["lang"]]["in"]: "membership",
-            ":": "dict-elem"  # Wuta added this line.
+            ":": "dict-elem",  # Wuta added this line.
         }
         if tok:
             their_prec = PRECEDENCE[tok["value"]]
@@ -118,21 +117,20 @@ def parse(input: TokenStream):
 
                 return maybe_binary(
                     {
-                        "type":
-                        binary_type.get(tok["value"], "binary"),
-                        "operator":
-                        tok["value"],
-                        "left" if tok["value"] != ":" else "key":
-                        left,
-                        "right" if tok["value"] != ":" else "value":
-                        maybe_binary(parse_atom(), their_prec)
-                    }, my_prec
+                        "type": binary_type.get(tok["value"], "binary"),
+                        "operator": tok["value"],
+                        "left" if tok["value"] != ":" else "key": left,
+                        "right"
+                        if tok["value"] != ":"
+                        else "value": maybe_binary(parse_atom(), their_prec),
+                    },
+                    my_prec,
                 )  # made a mistake here initially, put their_prec instead :|
 
         return left
 
     def delimited(start, stop, separator, parser):
-        """ get all the args for example """
+        """get all the args for example"""
 
         args, first = [], True
 
@@ -155,7 +153,7 @@ def parse(input: TokenStream):
         return {
             "type": "call",
             "func": func,
-            "args": delimited("(", ")", ",", parse_expression)
+            "args": delimited("(", ")", ",", parse_expression),
         }
 
     def parse_varname():
@@ -206,13 +204,13 @@ def parse(input: TokenStream):
         return ret
 
     def parse_while():
-        """ parse while"""
+        """parse while"""
         block_kw("set")
 
-        '''
+        """
         Basically this creates a block of code. However a dictionary sysntax is quite similar "{}".
         So once it sees a block, it should set expecting_non_dict_block to True and the next '{}' is called as a block.
-        '''
+        """
         block_kw("set")
 
         skip_kw(keywords[input.settings["lang"]]["while"])
@@ -224,14 +222,13 @@ def parse(input: TokenStream):
         ret = {
             "type": "while",
             "cond": cond,
-            "then":
-            then  # TODO: probably rename this to 'body' to match functions
+            "then": then,  # TODO: probably rename this to 'body' to match functions
         }
 
         return ret
 
     def parse_forloop():
-        """ read a for-loop expression """
+        """read a for-loop expression"""
         block_kw("set")
 
         skip_kw(keywords[input.settings["lang"]]["for"])
@@ -273,7 +270,7 @@ def parse(input: TokenStream):
             # be expressions like assingment def foo(b=1) {...}
             **ret,
             "vars": delimited("(", ")", ",", parse_expression),
-            "body": parse_expression()
+            "body": parse_expression(),
         }
 
         return ret
@@ -334,8 +331,7 @@ def parse(input: TokenStream):
             elif e["type"] == "use_class":
                 ret["init_parent"] = e
                 # make sure classes are the same!
-                if ret["init_parent"]["func"]["value"] != ret["inherits"][
-                        "value"]:
+                if ret["init_parent"]["func"]["value"] != ret["inherits"]["value"]:
                     input.croak("Parent class not initialized!")
 
         return ret
@@ -398,7 +394,10 @@ def parse(input: TokenStream):
         return p
 
     def parse_bool():
-        return {"type": "bool", "value": input.next()["value"] == keywords[input.settings["lang"]]["True"]}
+        return {
+            "type": "bool",
+            "value": input.next()["value"] == keywords[input.settings["lang"]]["True"],
+        }
 
     def maybe_call(expr):
         expr = expr()
@@ -444,7 +443,9 @@ def parse(input: TokenStream):
                 return parse_classprop()
             if is_kw(keywords[input.settings["lang"]]["use"]):
                 return parse_class_use()
-            if is_kw(keywords[input.settings["lang"]]["True"]) or is_kw(keywords[input.settings["lang"]]["False"]):
+            if is_kw(keywords[input.settings["lang"]]["True"]) or is_kw(
+                keywords[input.settings["lang"]]["False"]
+            ):
                 return parse_bool()
             if is_kw(keywords[input.settings["lang"]]["def"]):
                 return parse_function()
@@ -453,8 +454,11 @@ def parse(input: TokenStream):
 
             tok = input.next()
 
-            if (tok["type"] == "var") or (tok["type"] == "num") or (tok["type"]
-                                                                    == "str"):
+            if (
+                (tok["type"] == "var")
+                or (tok["type"] == "num")
+                or (tok["type"] == "str")
+            ):
                 return tok
 
             unexpected()
