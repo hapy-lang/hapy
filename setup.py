@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name='Hapy',
-    version='0.5.1',
+    version='0.5.2',
     author='Emmanuel Segun-Lean',
     author_email='emmanuel.segunlean@proton.me',
     license='MIT',

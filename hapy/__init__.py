@@ -10,4 +10,4 @@ import hapy.importer
 
 # always update the version after major.minor.patch changes
 # see semver.org or just google 'semantic versioning'
-__version__ = "0.5.1"
+__version__ = "0.5.2"
