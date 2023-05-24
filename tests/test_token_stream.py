@@ -1,10 +1,12 @@
-import unittest
+import os
+from unittest import main, mock, TestCase
 
 from hapy.input_stream import InputStream
 from hapy.token_stream import TokenStream
 
-
-class TestTokenStream(unittest.TestCase):
+class TestTokenStream(TestCase):
+    # TODO: doesn't work idk why. You have to set Env Variables yourself
+    @mock.patch.dict(os.environ, {"HAPY_LANG": "eng"})
     def test_read_next_number(self):
         """test read number function"""
 
@@ -154,4 +156,4 @@ if __name__ == "__main__":
     # test these in english.
 
     # we should probably create a Hausa version of the tests :)
-    unittest.main()
+    main()
