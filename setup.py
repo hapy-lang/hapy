@@ -7,8 +7,8 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
     requirements = fh.read().splitlines()
 
 setup(
-    name='Hapy',
-    version='0.5.2',
+    name='hapy',
+    version='0.5.3',
     author='Emmanuel Segun-Lean',
     author_email='emmanuel.segunlean@proton.me',
     license='MIT',

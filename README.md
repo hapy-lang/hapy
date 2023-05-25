@@ -11,7 +11,7 @@ Hapy can be installed using pip (pre-release versions)
 **note:** Hapy is still in development so it might change _a lot_ before full release. You can still join us for the ride!
 
 ```
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ Hapy
+pip install hapy
 ```
 
 > If you have installation problems on Windows, try [installing Python](https://python.org/downloads) from the Python website gan and not Microsoft Store.

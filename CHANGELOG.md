@@ -18,3 +18,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Smelling error caused by clashing names when running the previous `hapy eval`
 - Removed dict and list from list of keywords
+
+## [0.5.2] - 2023-05-20
+
+### Changed
+- updated Project description, prepare for publishing on main PyPi
+
+## [0.5.3] - 2023-05-25
+
+### Changed
+- chnaged name to lowercase 'hapy'
