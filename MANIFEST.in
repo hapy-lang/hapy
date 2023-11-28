@@ -3,4 +3,5 @@ include LICENSE.txt
 include hapy/modules/*.py
 include hapy/modules/*.hapy
 include hapy/*.hapy
+include hapy/examples/*.hapy
 include VERSION.txt

@@ -42,9 +42,9 @@ if __name__ == "__main__":
         age = 10;
 
         in (age > 20) {
-            printo("Age is greater!");
+            nuna("Age is greater!");
         } imbahakaba {
-            printo("Age is less!");
+            nuna("Age is less!");
         };
     """
 
