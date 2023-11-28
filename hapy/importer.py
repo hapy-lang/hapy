@@ -45,8 +45,6 @@ def make_module2(code: str, module_name: str):
     my_module = util.module_from_spec(my_spec)
 
     """
-    THANK YOU JESUS! THIS THING SAVED THIS CODE!
-
     the challenge: adding sys to globals :/
     """
     my_module.__dict__["sys"] = sys
@@ -76,8 +74,6 @@ def make_module(code: str, module_name: str):
     my_module = util.module_from_spec(my_spec)
 
     """
-    THANK YOU JESUS! THIS THING SAVED THIS CODE!
-
     the challenge: adding sys to globals :/
     """
     my_module.__dict__["sys"] = sys

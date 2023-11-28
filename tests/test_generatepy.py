@@ -1,15 +1,15 @@
-""" Test InputStream class. Thank you Jesus!
+""" Test InputStream class.
 """
 import unittest
-from input_stream import InputStream
-from token_stream import TokenStream
-from token_parser import parse
-from generate_py import make_py
+from hapy.input_stream import InputStream
+from hapy.token_stream import TokenStream
+from hapy.token_parser import parse
+from hapy.generate_py import make_py
 
 # TODO: ADD MORE TESTS OOO! TEST OTHER CONSTRUCTS!
 class TestGeneratePy(unittest.TestCase):
     def test_binary_ops_1(self):
-        """ test the binary ops bro """
+        """test the binary ops bro"""
         code = """
 				age = 20;
 				age > 10;
@@ -19,15 +19,16 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """age = 20;\nage > 10"""
+        expected = """age = 20;\n(age > 10)"""
 
         actual = make_py(ast)
 
         self.assertEqual(expected, actual, "This is a binary operator!")
 
     def test_binary_ops_words(self):
-        """ test the binary ops bro """
+        """test the binary ops bro"""
         code = """
+        #! lang=eng
 				bola_age is 20;
 				tolu_age is 30 minus 10;
 				"""
@@ -36,7 +37,7 @@ class TestGeneratePy(unittest.TestCase):
         tokens = TokenStream(inputs)
         ast = parse(tokens)
 
-        expected = """bola_age = 20;\ntolu_age = 30 - 10"""
+        expected = """bola_age = 20;\ntolu_age = (30 - 10)"""
 
         actual = make_py(ast)
 

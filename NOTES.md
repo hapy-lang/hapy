@@ -5,6 +5,9 @@ Versions use [Semantic Versioning](https://semver.org/)
 
 To Contributors: for now `VERSION.txt` should match the project's version
 
+### HAPY CAN NOW BE WRITTEN IN HAUSA
+## Some things will change...
+
 things I want ha.py to support... (15/09/21)
 
 This dialect should be able to be used to teach Python. That's it!
@@ -14,7 +17,7 @@ This dialect should be able to be used to teach Python. That's it!
 --- okay for now :)
 - [x] for loops
 - [x] lists
-- [ ] dicts
+- [x] dicts
 - [x] classes
 - [x] dot notation for accessing object methods
 - [ ] accessing iterator elements // list[0] # maybe we'll just use a special function :]
@@ -132,17 +135,22 @@ class ClassName inherits ParentClass {
 
 	use ParentClass(name);
 
-	def when_created() { # special constructor function (i don't want it to start with 'def o!)
+	def __startwith__() { # special constructor function (i don't want it to start with 'def o!)
 		print('Initialized!');
 	};
 
-	def when_string() { # special constructor function
-		print('Initialized!');
+	def __toshow__() { # special constructor function
+		return "Representation!";
 	};
 
-	def when_printed() { # special constructor function
-		print('Initialized!');
+	def __str__() { # special constructor function
+		return "String repr!";
 	};
+
+  .
+  .
+  .
+  # other special class methods used in Python...
 
 	def greet() { # i think just a regular function definition makes sense?
 		# we pass self for you!
@@ -164,11 +172,11 @@ class ClassName(ParentClass):
 
 		print('Initialized!')
 
-	def __str__(self): # special constructor function
-		print('Initialized!')
-
 	def __repr__(self): # special constructor function
-		print('Initialized!')
+		return "Representation"
+
+	def __str__(self): # special constructor function
+		return "String repr!"
 
 	def greet(self): # i think just a regular function definition makes sense?
 		# we pass self for you!

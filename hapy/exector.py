@@ -1,4 +1,4 @@
-"""execute python from string! thank you Jesus!"""
+"""execute python from string!"""
 
 import sys
 import traceback
@@ -8,7 +8,7 @@ from importlib import util
 
 # I'm not sure if we need this still. I know sha that we need a way
 # to set the exec know what module is running...
-def run2(source: str, file=False):
+def run2(source: str):
     lcls = {"sys": sys, "__name__": "__main__"}
     interpreter = _code.InteractiveInterpreter(locals=lcls)
     # here, we are saying this guy come's from the
@@ -20,8 +20,11 @@ def run(code: str, return_output: bool=False, cloud=False):
     """Execute Python code
 
     Keyword arguments:
-    argument -- description
-    Return: return_description
+    code -- the code to run
+    return_output -- whether to return an output or not
+    cloud -- is this the cloud environment?
+
+    Return: (error, output)
     """
 
     codeOut = StringIO()
@@ -60,7 +63,6 @@ def run(code: str, return_output: bool=False, cloud=False):
         print("output: \n%s" % s)
     else:
         return err, s
-
 
 
 
