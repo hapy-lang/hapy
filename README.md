@@ -98,6 +98,7 @@ keywords = {
     "ayyana": "def",
     "Gaskiya": "True",
     "Karya": "False",
+    "nuna": "print"
 }
 
 operators_words = {
