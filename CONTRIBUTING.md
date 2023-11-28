@@ -16,7 +16,7 @@ this will be quick and short before i write a more elaborate kini:
 	```git
 		git pull
 	```
-	then create a new branch using the latest changes
+	then create a new branch using the latest changes from `develop`
 	```git
 		git checkout -b	[branch name] (see branch names for more)
 	```
@@ -33,7 +33,31 @@ this will be quick and short before i write a more elaborate kini:
 		git push -u origin [branch name]
 	```
 
-	For the first time tho, subsequently to update the remote bracnh you'll just do `git push`
+	For the first time tho, subsequently to update the remote branch you'll just do `git push`
+
+	-----
+
+	### Working on Hapy:
+
+	The repository has 3 sections, hapy source code, scripts and tests. 
+
+	- /hapy folder contains the source code for the programming language, this is where you can find the parser and transpiler.
+
+	- /scripts has the necessary build scripts to bundle Hapy as a Pip package.
+
+	- /tests is where we write our tests. We use unittest.
+
+
+	We use Python 3 and pips virtualenv.
+
+	Install all packages using `pip install -r requirements.txt` from the root folder.
+
+	To run the tests, run `python -m unittest` from the root folder.
+
+	To execute a file run `python -m hapy.[file name]`
+
+	To explain the different main files such as the Parser, Input Stream and Transpiler you can consult the [Lisp Language Tutorial](https://lisperator.net/pltut/)
+
 
 
 Some resources:
