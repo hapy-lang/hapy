@@ -2,6 +2,8 @@
 
 # Hapy - Write Python in Hausa with braces!
 
+_pronounced like ha·pee like "Happy"_
+
 Hapy is a simple programming language that uses Hausa vocabulary and compiles to Python. Originally as a final year school project.
 
 ## Installation
