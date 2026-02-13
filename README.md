@@ -69,7 +69,7 @@ Python output after running `hapy example.hapy --save`
 
 ## Contributing
 
-OH MY GOSH 😂😭, WE'RE SO DESPERATE FOR CONTRIBUTIONS THAT WE'RE LITERALLY BEGGING FOR PULL REQUESTS 🙏🏼💻! WE'RE SERIOUSLY ABOUT TO START CRYING OVER HERE. PLEASE, PLEASE, PLEASE SEND A PR AND MAKE OUR DAY. WE'LL LOVE YOU FOREVER AND EVER ❤️🤗.
+Check out the open issues and make a PR! 
 
 ## Documentation
 
