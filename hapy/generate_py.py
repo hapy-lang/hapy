@@ -26,7 +26,10 @@ def is_in_parents_props(prop_name: str, parent_props) -> bool:
 
     while not found and i < len(parent_props):
         p = parent_props[i]
-        if p.get("value", None) == prop_name or p.get("left", None) == prop_name:
+        # p is either a plain var token ({"type": "var", "value": name}) or
+        # an assign token ({"type": "assign", "left": {"value": name}, ...})
+        left_value = p.get("left", {}).get("value", None) if isinstance(p.get("left"), dict) else None
+        if p.get("value", None) == prop_name or left_value == prop_name:
             found = True
         i += 1
 
@@ -39,8 +42,11 @@ def make_py(token, local: bool = False):
 
     settings = token.get("settings", {"lang": "hausa"})
 
-    # TODO: NOTE: lease how do we ensure this dictionary is always
-    # accurate!
+    # NOTE: keys here must mirror translations.ops_source. "of" and
+    # "not in"/"is equal"/"is not equal" exist in ops_source but aren't
+    # wired up here or in token_parser.PRECEDENCE, so they're not usable
+    # operators yet - that's a separate feature gap, not just a missing
+    # dict entry.
     word_ops = {
         operator_words[settings["lang"]]["and"]: "and",
         operator_words[settings["lang"]]["or"]: "or",
@@ -231,7 +237,6 @@ def make_py(token, local: bool = False):
 
     def py_if(tok):
         """creates a Python if statement"""
-        # TODO: support elif...
 
         if_blck = "if (" + pythonise(tok["cond"]) + ") {\n" + pythonise(tok["then"]) + "\n}"
 
@@ -248,8 +253,8 @@ def make_py(token, local: bool = False):
     def py_while(tok):
         """while loop, returns python while loop!"""
 
-        o = "while (" + pythonise(tok["cond"]) + ") {\n"
-        + pythonise(tok["then"]) + "\n}"
+        o = ("while (" + pythonise(tok["cond"]) + ") {\n"
+             + pythonise(tok["body"]) + "\n}")
 
         return o
 
@@ -329,9 +334,9 @@ def make_py(token, local: bool = False):
         if "inherits" in tok:
             args = ""
 
-            # TODO (!!!!): prevent duplicating attributes that were sent to Parent in
-            # the _init_ also!
-
+            # attributes forwarded to Parent's __init__ are excluded below
+            # (see is_in_parents_props) so they aren't duplicated as plain
+            # self.x = x assignments too.
             if "init_parent" in tok and tok["init_parent"].get("args", None):
                 args = ", ".join(
                     list(
@@ -407,8 +412,10 @@ def make_py(token, local: bool = False):
         return o
 
     def py_prog(tok):
-        # just return the token
-        # TODO: maybe add closing ; at the end of the program? DISCUSS IT
+        # ";\n" is a separator between statements, not a terminator, so no
+        # trailing ";" is needed after the last one - callers already wrap
+        # this in their own closing brace/newline (see the NOTE at the top
+        # of this file).
         return ";\n".join(list(map(lambda x: pythonise(x), tok["prog"])))
 
     return pythonise(token)

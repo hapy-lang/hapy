@@ -18,7 +18,10 @@ e.g {"if": "if"} // {"if": "hausa_if"}
 operators = [">", "<", "==", "!=", ">=", "<=", "-", "+", "/", "*", "**", "//",
              "%", ".", "=", ":"]  # Wuta Added ":" for Dictionary
 
-# TODO: consider why '//' exists
+# '//' is floor division and '**' is exponentiation; both are tokenized
+# here and now have PRECEDENCE entries in token_parser.py (they used to
+# be tokenizable but crash with a raw KeyError as soon as they were used
+# in an expression, since PRECEDENCE didn't know about them).
 
 
 class TokenStream(InputStream):

@@ -43,6 +43,8 @@ def parse(input: TokenStream):
         operator_words[input.settings["lang"]]["minus"]: 10,
         "*": 20,
         "/": 20,
+        "//": 20,
+        "**": 20,
         "%": 20,
         operator_words[input.settings["lang"]]["times"]: 20,
         operator_words[input.settings["lang"]]["dividedby"]: 20,
@@ -190,16 +192,8 @@ def parse(input: TokenStream):
 
         if is_kw(keywords[input.settings["lang"]]["else"]):
             block_kw("set")
-            # TODO: this should be skip_kw("else") :)
-            # but I'm afraid it might cause problems :(
-
-            input.next()
+            skip_kw(keywords[input.settings["lang"]]["else"])
             ret["else"] = parse_expression()
-
-        # TODO: look into `else_if/elif`
-        # if is_kw("else_if"):
-        #   input.next()
-        #   ret["else"] = parse_expression()
 
         return ret
 
@@ -222,7 +216,7 @@ def parse(input: TokenStream):
         ret = {
             "type": "while",
             "cond": cond,
-            "then": then,  # TODO: probably rename this to 'body' to match functions
+            "body": then,  # named 'body' to match functions/forloop tokens
         }
 
         return ret
@@ -377,19 +371,15 @@ def parse(input: TokenStream):
         """
         skip_kw(keywords[input.settings["lang"]]["has"])
 
-        ret = {"type": "class_property"}
-
         # get the name or expression...
         p = maybe_binary(parse_atom(), 0)
 
-        # if its somn like 'has age = 1'
-        if p["type"] == "assign":
-            # ret["value"] = p["left"]["value"]
-            # ret["default_value"] = p["right"]["value"]
-            ret = {**ret, **p}
-        elif p["type"] == "var":
-            ret = {**ret, **p}
-        # TODO: maybe throw an error here...
+        # only 'has prop_name' (var) or 'has prop_name = default' (assign)
+        # are valid class properties, anything else is a syntax error.
+        if p["type"] not in ("assign", "var"):
+            return unexpected(
+                "Invalid class property, expected a name or a default "
+                "value assignment, got: %s")
 
         return p
 
@@ -471,9 +461,17 @@ def parse(input: TokenStream):
         return {"type": "list", "elements": elems}
 
     def parse_dict():
-        # TODO: if a user types {1,2,3} we should handle it corretly,
-        # tell them it's a syntax error!
         elem = delimited("{", "}", ",", parse_expression)
+
+        # every entry must be a "key: value" pair (type "dict-elem"), so
+        # something like {1,2,3} is a clear syntax error rather than being
+        # silently accepted.
+        for e in elem:
+            if e["type"] != "dict-elem":
+                input.croak(
+                    'Invalid dict syntax: expected "key: value" pairs, '
+                    'got "%s"' % json.dumps(e))
+
         return {"type": "dict", "content": elem}
 
     def parse_prog():

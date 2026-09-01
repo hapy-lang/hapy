@@ -5,8 +5,14 @@ from hapy.input_stream import InputStream
 from hapy.token_stream import TokenStream
 
 class TestTokenStream(TestCase):
-    # TODO: doesn't work idk why. You have to set Env Variables yourself
-    @mock.patch.dict(os.environ, {"HAPY_LANG": "eng"})
+    def setUp(self):
+        # These tests are all written assuming English keywords/operators
+        # (e.g. "return", "and", "for"), so the whole class - not just one
+        # test - needs HAPY_LANG=eng for the duration of each test.
+        patcher = mock.patch.dict(os.environ, {"HAPY_LANG": "eng"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_read_next_number(self):
         """test read number function"""
 

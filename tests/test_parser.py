@@ -342,7 +342,7 @@ class TestParser(unittest.TestCase):
                 {
                     "type": "while",
                     "cond": {"type": "bool", "value": True},
-                    "then": {
+                    "body": {
                         "type": "call",
                         "func": {"type": "var", "value": "print"},
                         "args": [{"type": "str", "value": "true!"}],
@@ -571,6 +571,19 @@ class TestParser(unittest.TestCase):
         self.assertEqual(
             expected, actual, "Expression is a class statement with some properties"
         )
+
+    def test_class_property_invalid_expression_raises(self):
+        """regression test: a 'has' property that's neither a plain name
+        nor a name = default assignment used to be silently accepted"""
+        code = """
+        #! lang=eng
+            class Woman {
+                has foo();
+            }
+            """
+
+        with self.assertRaises(Exception):
+            parse(TokenStream(InputStream(code)))
 
     def test_class_3(self):
         """

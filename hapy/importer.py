@@ -8,13 +8,12 @@ from importlib import util  # noqa: E401
 # get current path of file
 fullpath = os.path.realpath(__file__)
 HAPY_PATH = os.path.dirname(fullpath)
-# TODO: add a short description and other info to these modules...
 hapy_modules = {
     "test": {"path": f"{HAPY_PATH}/modules/test_module.py",
-        "description": "Test module for testing",
+        "description": "Test module for testing Hapy's builtin-module import machinery",
         "functions": []},
     "popo": {"path": f"{HAPY_PATH}/modules/popo_module.py",
-        "description": "Test module for testing",
+        "description": "Sample builtin module exposing a greeting function",
         "functions": []}
     }
 
@@ -23,17 +22,20 @@ def all_local_modules():
     Returns the names of all local hapy modules in the current directory.
     NOTE: Hapy does not currently support packages and all that bull...
     """
-    all_hapyfiles = list(map(lambda x: x.rstrip('.hapy'), glob.glob("*.hapy")))
+    # NOTE: str.rstrip('.hapy') strips any trailing chars in the set
+    # {'.', 'h', 'a', 'p', 'y'}, not the literal ".hapy" suffix, so it used
+    # to mangle names like "cocoa.hapy" -> "coc". Strip the exact suffix.
+    all_hapyfiles = [os.path.splitext(x)[0] for x in glob.glob("*.hapy")]
 
     return all_hapyfiles
 
 def is_local_module(mod_name: str):
     """
     check if mod_name is the name of a file in the current directory
-    TODO: set current working dir to the dir of the executed file!!!
-    if we are excuting a file of course...
+    of the file being executed (the caller is responsible for having
+    chdir'd there, see scripts/hapy_cli.py run())
     """
-    all_hapyfiles = list(map(lambda x: x.rstrip('.hapy'), glob.glob("*.hapy")))
+    all_hapyfiles = [os.path.splitext(x)[0] for x in glob.glob("*.hapy")]
 
     return mod_name in all_hapyfiles
 
@@ -118,15 +120,20 @@ def get(module_name: str, is_local: bool = False) -> str:
     elif is_local_module(module_name):
         from hapy.transpiler import transpile
         # transpile local module and all...
-        # TODO: we are assuming the file exists! WRONG!
         module_filepath = module_name + ".hapy"
-        with open(module_filepath, "r") as file:
-            code = file.read()
-            # nonlocal transpile
-            # now we have to transpile this code to python!
-            pyc = transpile(code, local=True)
+        if not os.path.isfile(module_filepath):
+            # is_local_module() found it via glob a moment ago, but be
+            # defensive against it disappearing/racing rather than crash
+            # with a raw FileNotFoundError.
+            import_result = (False, 4, None)
+        else:
+            with open(module_filepath, "r") as file:
+                code = file.read()
+                # nonlocal transpile
+                # now we have to transpile this code to python!
+                pyc = transpile(code, local=True)
 
-            import_result = (True, 2, make_module2(pyc, module_name))
+                import_result = (True, 2, make_module2(pyc, module_name))
     elif module_name.startswith("py_"):
         # if the module name starts with this, its a python module
         # just remove the py_ and import normally, else it's an error!
@@ -134,7 +141,5 @@ def get(module_name: str, is_local: bool = False) -> str:
         import_result = (True, 3, module_name.lstrip("py_"))
     else:
         import_result = (False, 4, None)
-
-    # TODO: we're assuming the file exists!
 
     return import_result
