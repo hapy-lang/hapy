@@ -223,6 +223,32 @@ class TestParser(unittest.TestCase):
 
         self.assertEqual(expected, actual, "Expression is a function call")
 
+    def test_bare_return(self):
+        """regression test: a bare 'return;' with no expression used to
+        raise a parse error trying to parse an expression from thin air"""
+        code = """
+        #! lang=eng
+        def foo() {
+            return;
+        };
+        """
+
+        expected = {
+            "type": "prog",
+            "prog": [
+                {
+                    "type": "function",
+                    "name": {"type": "var", "value": "foo"},
+                    "vars": [],
+                    "body": {"type": "return", "expression": None},
+                }
+            ],
+        }
+        actual = parse(TokenStream(InputStream(code)))
+        actual.pop("settings")
+
+        self.assertEqual(expected, actual, "Expression is a bare return statement")
+
     def test_word_binary(self):
         """
         Test binary operation using words and, or
@@ -444,6 +470,52 @@ class TestParser(unittest.TestCase):
         actual.pop("settings")
 
         self.assertEqual(expected, actual, "Expression is an empty list literal")
+
+    def test_list_index(self):
+        """
+        Test parsing list indexing, e.g. nums[0]
+        """
+        code = "nums[0];"
+
+        expected = {
+            "type": "prog",
+            "prog": [
+                {
+                    "type": "index",
+                    "object": {"type": "var", "value": "nums"},
+                    "index": {"type": "num", "value": 0},
+                }
+            ],
+        }
+        actual = parse(TokenStream(InputStream(code)))
+        actual.pop("settings")
+
+        self.assertEqual(expected, actual, "Expression is a list index")
+
+    def test_chained_index(self):
+        """
+        Test parsing chained indexing, e.g. grid[0][1]
+        """
+        code = "grid[0][1];"
+
+        expected = {
+            "type": "prog",
+            "prog": [
+                {
+                    "type": "index",
+                    "object": {
+                        "type": "index",
+                        "object": {"type": "var", "value": "grid"},
+                        "index": {"type": "num", "value": 0},
+                    },
+                    "index": {"type": "num", "value": 1},
+                }
+            ],
+        }
+        actual = parse(TokenStream(InputStream(code)))
+        actual.pop("settings")
+
+        self.assertEqual(expected, actual, "Expression is a chained list index")
 
     def test_dot_access_1(self):
         """

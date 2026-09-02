@@ -158,6 +158,13 @@ def parse(input: TokenStream):
             "args": delimited("(", ")", ",", parse_expression),
         }
 
+    def parse_index(obj):
+        """parse obj[index], e.g. mylist[0] or mydict["key"]"""
+        skip_punc("[")
+        index = parse_expression()
+        skip_punc("]")
+        return {"type": "index", "object": obj, "index": index}
+
     def parse_varname():
         name = input.next()
         if name["type"] != "var":
@@ -352,6 +359,11 @@ def parse(input: TokenStream):
         """
         skip_kw(keywords[input.settings["lang"]]["return"])
 
+        # a bare 'return;' (or 'return' at the end of a block) returns
+        # nothing, same as Python's bare 'return'
+        if is_punc(";") or is_punc("}") or input.eof():
+            return {"type": "return", "expression": None}
+
         return {"type": "return", "expression": parse_expression()}
 
     def parse_class_use():
@@ -390,8 +402,16 @@ def parse(input: TokenStream):
         }
 
     def maybe_call(expr):
-        expr = expr()
-        return parse_call(expr) if is_punc("(") else expr
+        """apply any chain of postfix call/index operators, e.g.
+        f()[0](x)[1] - keeps applying while one still follows"""
+        result = expr()
+        while True:
+            if is_punc("("):
+                result = parse_call(result)
+            elif is_punc("["):
+                result = parse_index(result)
+            else:
+                return result
 
     def parse_atom():
         def doer():

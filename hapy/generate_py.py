@@ -42,11 +42,13 @@ def make_py(token, local: bool = False):
 
     settings = token.get("settings", {"lang": "hausa"})
 
-    # NOTE: keys here must mirror translations.ops_source. "of" and
-    # "not in"/"is equal"/"is not equal" exist in ops_source but aren't
-    # wired up here or in token_parser.PRECEDENCE, so they're not usable
-    # operators yet - that's a separate feature gap, not just a missing
-    # dict entry.
+    # NOTE: keys here must mirror translations.ops_source. "of", "not in",
+    # "is equal" and "is not equal" exist in ops_source but are not usable
+    # operators: TokenStream.read_identifier() only ever reads a single
+    # word at a time, so a two-word phrase like "is equal" tokenizes as
+    # two separate tokens (op "is", var "equal"), never as one operator
+    # token. Making these work needs multi-word lookahead in the tokenizer,
+    # not just entries in this dict / token_parser.PRECEDENCE.
     word_ops = {
         operator_words[settings["lang"]]["and"]: "and",
         operator_words[settings["lang"]]["or"]: "or",
@@ -89,6 +91,7 @@ def make_py(token, local: bool = False):
             "while": py_while,
             "for": py_forloop,
             "call": py_call,
+            "index": py_index,
             "prog": py_prog,
             # class stuff
             "class": py_class,
@@ -273,6 +276,11 @@ def make_py(token, local: bool = False):
             ", ".join(list(map(lambda x: pythonise(x), tok["args"])))
         })
 
+    def py_index(tok):
+        """mylist[0] or mydict["key"], also works as an assignment target
+        (mylist[0] = 5) since py_assign just renders left = right"""
+        return pythonise(tok["object"]) + "[" + pythonise(tok["index"]) + "]"
+
     def py_class(tok):
         """generate python class"""
 
@@ -372,10 +380,11 @@ def make_py(token, local: bool = False):
         return o
 
     def py_return(tok):
-        # return a return statement...
-        o = "return " + pythonise(tok["expression"])
+        # a bare 'return' with no expression, same as Python's bare 'return'
+        if tok["expression"] is None:
+            return "return"
 
-        return o
+        return "return " + pythonise(tok["expression"])
 
     def py_import(tok):
         """paste import statement in code

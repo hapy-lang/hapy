@@ -37,6 +37,23 @@ class TestTokenStream(TestCase):
 
         self.assertEqual(expected, actual, "the stream is a string")
 
+    def test_read_next_string_with_other_quote_type_inside(self):
+        """regression test: a double-quoted string used to always
+        terminate on the FIRST quote char of either type it saw, so an
+        apostrophe like the one in "Can't" would end the string early"""
+
+        stream = InputStream('"Can\'t do that"')
+
+        ts = TokenStream(stream)
+
+        expected = {"type": "str", "value": "Can't do that"}
+        actual = ts.read_next()
+
+        self.assertEqual(
+            expected, actual,
+            "a \" string should only terminate on \", not on '"
+        )
+
     def test_skip_comment(self):
         """test read number function"""
 

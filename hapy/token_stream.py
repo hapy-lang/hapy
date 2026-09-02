@@ -158,11 +158,15 @@ class TokenStream(InputStream):
         return string
 
     def read_string(self):
-        """return string token"""
+        """return string token, terminated by the same quote character it
+        opened with (a "..." string can contain an unescaped ' and vice
+        versa, matching normal string-literal behavior)"""
+
+        quote_char = self.input.peek()
 
         return {
             "type": "str",
-            "value": self.read_escaped(('"', '\'', "'"))
+            "value": self.read_escaped(quote_char)
         }
 
     def skip_comment(self):

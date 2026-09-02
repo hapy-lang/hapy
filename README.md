@@ -71,7 +71,7 @@ OH MY GOSH 😂😭, WE'RE SO DESPERATE FOR CONTRIBUTIONS THAT WE'RE LITERALLY B
 
 ## Documentation
 
-on it's way...
+See [docs/LANGUAGE.md](docs/LANGUAGE.md) for a full syntax reference (keywords, operators, builtins, and examples for every construct).
 
 ### Hausa -> English Dictionary
 
