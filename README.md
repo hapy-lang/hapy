@@ -73,7 +73,7 @@ Check out the open issues and make a PR!
 
 ## Documentation
 
-on it's way...
+See [docs/LANGUAGE.md](docs/LANGUAGE.md) for a full syntax reference (keywords, operators, builtins, and examples for every construct).
 
 ### Hausa -> English Dictionary
 

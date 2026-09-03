@@ -18,7 +18,10 @@ e.g {"if": "if"} // {"if": "hausa_if"}
 operators = [">", "<", "==", "!=", ">=", "<=", "-", "+", "/", "*", "**", "//",
              "%", ".", "=", ":"]  # Wuta Added ":" for Dictionary
 
-# TODO: consider why '//' exists
+# '//' is floor division and '**' is exponentiation; both are tokenized
+# here and now have PRECEDENCE entries in token_parser.py (they used to
+# be tokenizable but crash with a raw KeyError as soon as they were used
+# in an expression, since PRECEDENCE didn't know about them).
 
 
 class TokenStream(InputStream):
@@ -155,11 +158,15 @@ class TokenStream(InputStream):
         return string
 
     def read_string(self):
-        """return string token"""
+        """return string token, terminated by the same quote character it
+        opened with (a "..." string can contain an unescaped ' and vice
+        versa, matching normal string-literal behavior)"""
+
+        quote_char = self.input.peek()
 
         return {
             "type": "str",
-            "value": self.read_escaped(('"', '\'', "'"))
+            "value": self.read_escaped(quote_char)
         }
 
     def skip_comment(self):

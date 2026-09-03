@@ -15,6 +15,15 @@ installed_version = get_distribution("hapy").version
 VERSION = expected_version or installed_version or "N/A"
 
 
+_STRING_LITERAL_RE = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'')
+
+
+def _strip_string_literals(line: str) -> str:
+    """remove quoted string contents so stray '{'/'}' inside string
+    literals aren't mistaken for block delimiters when counting braces"""
+    return _STRING_LITERAL_RE.sub("", line)
+
+
 def check_commands(command: str) -> None:
     res = True
     if command == "clear":
@@ -92,24 +101,35 @@ def run(filename, compile_only, save):
     if not filename.endswith(".hapy"):
         raise click.ClickException("Not a Hapy file :/")
 
-    with open(filename, "r") as file:
-        hapy_code = file.read()
-        compiled_python = transpile(hapy_code)
+    abs_filename = os.path.abspath(filename)
+    file_dir = os.path.dirname(abs_filename)
+    base_filename = os.path.basename(abs_filename)
 
-    # if user wants to save file!
-    if save:
-        new_filename = filename.rstrip(".hapy") + ".ha.py"
-        click.secho("\n" + "[i]: Saved file as %s" % new_filename + "\n",
-                    fg="green")
-        with open(new_filename, "w") as py_file:
-            py_file.write(compiled_python)
+    # chdir into the executed file's own directory so that `import <local
+    # module>` resolves sibling .hapy files relative to the file being run,
+    # not whatever directory the CLI happened to be invoked from.
+    os.chdir(file_dir)
+    try:
+        with open(base_filename, "r") as file:
+            hapy_code = file.read()
+            compiled_python = transpile(hapy_code)
 
-    if compile_only:
-        # click.secho("Compiled code:\n", fg="green", underline=True)
-        click.secho(compiled_python, bold=True)
-    else:
-        # execute the compiled code
-        run2(compiled_python)
+        # if user wants to save file!
+        if save:
+            new_filename = base_filename[:-len(".hapy")] + ".ha.py"
+            click.secho("\n" + "[i]: Saved file as %s" % new_filename + "\n",
+                        fg="green")
+            with open(new_filename, "w") as py_file:
+                py_file.write(compiled_python)
+
+        if compile_only:
+            # click.secho("Compiled code:\n", fg="green", underline=True)
+            click.secho(compiled_python, bold=True)
+        else:
+            # execute the compiled code
+            run2(compiled_python)
+    finally:
+        os.chdir(cwd)
 
 
 # Inline compilation
@@ -237,13 +257,12 @@ def repl(ctx, english):
 
                         while open_brackets != closing_brackets:
                             in_2 = input("... ")
-                            # TODO: find a better way of checking if line ends in
-                            # "}" or "};"
+                            in_2_code = _strip_string_literals(in_2)
 
-                            if "{" in in_2 or "}" in in_2:
+                            if "{" in in_2_code or "}" in in_2_code:
                                 code += "\n"
-                                closing_brackets += in_2.count("}")
-                                open_brackets += in_2.count("{")
+                                closing_brackets += in_2_code.count("}")
+                                open_brackets += in_2_code.count("{")
 
                             code += in_2
 

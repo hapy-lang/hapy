@@ -26,7 +26,10 @@ def is_in_parents_props(prop_name: str, parent_props) -> bool:
 
     while not found and i < len(parent_props):
         p = parent_props[i]
-        if p.get("value", None) == prop_name or p.get("left", None) == prop_name:
+        # p is either a plain var token ({"type": "var", "value": name}) or
+        # an assign token ({"type": "assign", "left": {"value": name}, ...})
+        left_value = p.get("left", {}).get("value", None) if isinstance(p.get("left"), dict) else None
+        if p.get("value", None) == prop_name or left_value == prop_name:
             found = True
         i += 1
 
@@ -39,8 +42,13 @@ def make_py(token, local: bool = False):
 
     settings = token.get("settings", {"lang": "hausa"})
 
-    # TODO: NOTE: lease how do we ensure this dictionary is always
-    # accurate!
+    # NOTE: keys here must mirror translations.ops_source. "of", "not in",
+    # "is equal" and "is not equal" exist in ops_source but are not usable
+    # operators: TokenStream.read_identifier() only ever reads a single
+    # word at a time, so a two-word phrase like "is equal" tokenizes as
+    # two separate tokens (op "is", var "equal"), never as one operator
+    # token. Making these work needs multi-word lookahead in the tokenizer,
+    # not just entries in this dict / token_parser.PRECEDENCE.
     word_ops = {
         operator_words[settings["lang"]]["and"]: "and",
         operator_words[settings["lang"]]["or"]: "or",
@@ -83,6 +91,7 @@ def make_py(token, local: bool = False):
             "while": py_while,
             "for": py_forloop,
             "call": py_call,
+            "index": py_index,
             "prog": py_prog,
             # class stuff
             "class": py_class,
@@ -231,7 +240,6 @@ def make_py(token, local: bool = False):
 
     def py_if(tok):
         """creates a Python if statement"""
-        # TODO: support elif...
 
         if_blck = "if (" + pythonise(tok["cond"]) + ") {\n" + pythonise(tok["then"]) + "\n}"
 
@@ -248,8 +256,8 @@ def make_py(token, local: bool = False):
     def py_while(tok):
         """while loop, returns python while loop!"""
 
-        o = "while (" + pythonise(tok["cond"]) + ") {\n"
-        + pythonise(tok["then"]) + "\n}"
+        o = ("while (" + pythonise(tok["cond"]) + ") {\n"
+             + pythonise(tok["body"]) + "\n}")
 
         return o
 
@@ -267,6 +275,11 @@ def make_py(token, local: bool = False):
             "args":
             ", ".join(list(map(lambda x: pythonise(x), tok["args"])))
         })
+
+    def py_index(tok):
+        """mylist[0] or mydict["key"], also works as an assignment target
+        (mylist[0] = 5) since py_assign just renders left = right"""
+        return pythonise(tok["object"]) + "[" + pythonise(tok["index"]) + "]"
 
     def py_class(tok):
         """generate python class"""
@@ -329,9 +342,9 @@ def make_py(token, local: bool = False):
         if "inherits" in tok:
             args = ""
 
-            # TODO (!!!!): prevent duplicating attributes that were sent to Parent in
-            # the _init_ also!
-
+            # attributes forwarded to Parent's __init__ are excluded below
+            # (see is_in_parents_props) so they aren't duplicated as plain
+            # self.x = x assignments too.
             if "init_parent" in tok and tok["init_parent"].get("args", None):
                 args = ", ".join(
                     list(
@@ -367,10 +380,11 @@ def make_py(token, local: bool = False):
         return o
 
     def py_return(tok):
-        # return a return statement...
-        o = "return " + pythonise(tok["expression"])
+        # a bare 'return' with no expression, same as Python's bare 'return'
+        if tok["expression"] is None:
+            return "return"
 
-        return o
+        return "return " + pythonise(tok["expression"])
 
     def py_import(tok):
         """paste import statement in code
@@ -407,8 +421,10 @@ def make_py(token, local: bool = False):
         return o
 
     def py_prog(tok):
-        # just return the token
-        # TODO: maybe add closing ; at the end of the program? DISCUSS IT
+        # ";\n" is a separator between statements, not a terminator, so no
+        # trailing ";" is needed after the last one - callers already wrap
+        # this in their own closing brace/newline (see the NOTE at the top
+        # of this file).
         return ";\n".join(list(map(lambda x: pythonise(x), tok["prog"])))
 
     return pythonise(token)

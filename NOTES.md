@@ -20,8 +20,8 @@ This dialect should be able to be used to teach Python. That's it!
 - [x] dicts
 - [x] classes
 - [x] dot notation for accessing object methods
-- [ ] accessing iterator elements // list[0] # maybe we'll just use a special function :]
-# Like list.get(2) ...
+- [x] accessing iterator elements // list[0], also works as an assignment
+target (list[0] = 5) and chains (grid[0][1]) - see docs/LANGUAGE.md
  not really important:
 - [x] import statements # not _fully_ tested yet :]
 - [ ] switch statements # hmm...
@@ -71,7 +71,7 @@ FOR ( var in collection ) {
 - To run a single file (module) in the hapy package, do `python -m hapy.{{name of module}}`. This prevents
 all those 'relative import/no parent package' errors.
 
-## KNOWN ISSUES
+## KNOWN ISSUES (fixed)
 
 ```any
     if (self.gender != "Female") {
@@ -80,11 +80,16 @@ all those 'relative import/no parent package' errors.
             return;
         };
 ```
-This code fails to transpile in Hapy!
-1. The "'" in Can't causes `delimeter({, }, ,)` to fail
-2. The single `return` also fails
-
-We just need to handle those situations!
+This code used to fail to transpile in Hapy:
+1. ~~The "'" in Can't causes `delimeter({, }, ,)` to fail~~ - `read_string()`
+   always ended a string on the FIRST quote char of either type, so a `"`
+   string would terminate early on an unescaped `'` inside it. Fixed by
+   only terminating on the quote character the string actually opened
+   with.
+2. ~~The single `return` also fails~~ - `parse_return` unconditionally
+   tried to parse an expression after `return`. Fixed to treat
+   `return;`/`return }` as a bare return with no expression, same as
+   Python.
 
 ## dots
 something like this "'hello friend'.uppercase()" should have these tokens:

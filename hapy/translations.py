@@ -81,18 +81,13 @@ def makeTranslationDicts():
     }
     """
 
-    # TODO: make all this a dynamic loop!
-
-    keywords["hausa"] = dict((v, k) for k, v in kws_source.items())
-    keywords["eng"] = dict((v, v) for k, v in kws_source.items())
-
-    # operator words
-    operator_words["hausa"] = dict((v, k) for k, v in ops_source.items())
-    operator_words["eng"] = dict((v, v) for k, v in ops_source.items())
-
-    # builtin_functions TEMPORARY!
-    builtin_functions["hausa"] = dict((v, k) for k, v in builtin_funcs.items())
-    builtin_functions["eng"] = dict((v, v) for k, v in builtin_funcs.items())
+    for target, source in (
+        (keywords, kws_source),
+        (operator_words, ops_source),
+        (builtin_functions, builtin_funcs),
+    ):
+        target["hausa"] = dict((v, k) for k, v in source.items())
+        target["eng"] = dict((v, v) for k, v in source.items())
 
 
 makeTranslationDicts()

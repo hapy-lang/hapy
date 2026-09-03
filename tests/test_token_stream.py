@@ -5,8 +5,14 @@ from hapy.input_stream import InputStream
 from hapy.token_stream import TokenStream
 
 class TestTokenStream(TestCase):
-    # TODO: doesn't work idk why. You have to set Env Variables yourself
-    @mock.patch.dict(os.environ, {"HAPY_LANG": "eng"})
+    def setUp(self):
+        # These tests are all written assuming English keywords/operators
+        # (e.g. "return", "and", "for"), so the whole class - not just one
+        # test - needs HAPY_LANG=eng for the duration of each test.
+        patcher = mock.patch.dict(os.environ, {"HAPY_LANG": "eng"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_read_next_number(self):
         """test read number function"""
 
@@ -30,6 +36,23 @@ class TestTokenStream(TestCase):
         actual = ts.read_next()
 
         self.assertEqual(expected, actual, "the stream is a string")
+
+    def test_read_next_string_with_other_quote_type_inside(self):
+        """regression test: a double-quoted string used to always
+        terminate on the FIRST quote char of either type it saw, so an
+        apostrophe like the one in "Can't" would end the string early"""
+
+        stream = InputStream('"Can\'t do that"')
+
+        ts = TokenStream(stream)
+
+        expected = {"type": "str", "value": "Can't do that"}
+        actual = ts.read_next()
+
+        self.assertEqual(
+            expected, actual,
+            "a \" string should only terminate on \", not on '"
+        )
 
     def test_skip_comment(self):
         """test read number function"""
